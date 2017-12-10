@@ -1,0 +1,7 @@
+FIND_PROGRAM(PYTHON "python")
+
+IF(PYTHON)
+  CONFIGURE_FILE(
+      "${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in"
+      "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
+ENDIF()

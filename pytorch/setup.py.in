@@ -1,0 +1,35 @@
+import os
+import platform
+import sys
+
+from distutils.core import setup
+from torch.utils.ffi import create_extension
+
+extra_compile_args = ['-std=c++11', '-fPIC']
+
+if "CUDA_HOME" not in os.environ:
+    print("CUDA_HOME not found in the environment so building "
+          "without GPU support. To build with GPU support "
+          "please define the CUDA_HOME environment variable. "
+          "This should be a path which contains include/cuda.h")
+    enable_gpu = False
+else:
+    enable_gpu = True
+
+if platform.system() == 'Darwin':
+    lib_ext = ".dylib"
+else:
+    lib_ext = ".so"
+
+if enable_gpu:
+    extra_compile_args += '-DWITH_CUDA'
+
+ffi = create_extension(
+    name='nnutils',
+    language='c++',
+    headers=['src/binding.h'],
+    sources=['src/binding.cc'],
+    with_cuda=enable_gpu)
+ffi = ffi.distutils_extension()
+
+
