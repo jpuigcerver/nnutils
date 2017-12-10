@@ -1,0 +1,1 @@
+ADD_SOURCES(mask_image_from_size.cu mask_image_from_size.h)
