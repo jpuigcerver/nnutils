@@ -1,8 +1,8 @@
 ## Obtained from:
 #
 # http://tracker.icir.org/bro/browser/branches/matthias/vast/cmake/FindPerftools.cmake?order=date
-# 
-# 
+#
+#
 
 # Copyright (c) 2009, International Computer Science Institute All
 # rights reserved.
@@ -39,7 +39,7 @@
 # DAMAGE.
 
 
-# - Try to find Google perftools include dirs and libraries 
+# - Try to find Google perftools include dirs and libraries
 #
 # Usage of this module as follows:
 #
@@ -61,8 +61,8 @@
 # Variables defined by this module:
 #
 #  Perftools_FOUND           System has Google perftools, this means the
-#                            include dir and all the libraries were found.  
-#  Perftools_INCLUDE_DIRS    Google perftools include directories. 
+#                            include dir and all the libraries were found.
+#  Perftools_INCLUDE_DIRS    Google perftools include directories.
 #  Perftools_LIBRARIES       Link these to use the Google perftools libraries.
 #
 #  Perftools_TCMALLOC_LIBRARY        Path to the tcmalloc library.
@@ -101,9 +101,9 @@ else ()
     # tcmalloc
     set(tcmalloc_names ${tcmalloc_names} tcmalloc)
     find_library(perftools_tcmalloc_library
-        NAMES 
+        NAMES
             ${tcmalloc_names}
-        PATHS 
+        PATHS
             ${Perftools_ADDITIONAL_LIBRARY_SEARCH_DIRS}
             /usr/local/lib
             /opt/local/lib
@@ -113,7 +113,7 @@ else ()
 
     if (perftools_tcmalloc_library AND Perftools_INCLUDE_DIRS)
         set(Perftools_TCMALLOC_LIBRARY ${perftools_tcmalloc_library})
-        set(Perftools_LIBRARIES 
+        set(Perftools_LIBRARIES
             ${Perftools_LIBRARIES} ${perftools_tcmalloc_library})
         set(Perftools_FOUND true)
     else ()
@@ -124,9 +124,9 @@ else ()
     # stacktrace
     set(stacktrace_names ${stacktrace_names} stacktrace)
     find_library(perftools_stacktrace_library
-        NAMES 
+        NAMES
             ${stacktrace_names}
-        PATHS 
+        PATHS
             ${Perftools_ADDITIONAL_LIBRARY_SEARCH_DIRS}
             /usr/local/lib
             /opt/local/lib
@@ -136,7 +136,7 @@ else ()
 
     if (perftools_stacktrace_library AND Perftools_INCLUDE_DIRS)
         set(Perftools_STACKTRACE_LIBRARY ${perftools_stacktrace_library})
-        set(Perftools_LIBRARIES 
+        set(Perftools_LIBRARIES
             ${Perftools_LIBRARIES} ${perftools_stacktrace_library})
     endif ()
 
@@ -144,9 +144,9 @@ else ()
     # profiler
     set(profiler_names ${profiler_names} profiler)
     find_library(perftools_profiler_library
-        NAMES 
+        NAMES
             ${profiler_names}
-        PATHS 
+        PATHS
             ${Perftools_ADDITIONAL_LIBRARY_SEARCH_DIRS}
             /usr/local/lib
             /opt/local/lib
@@ -156,7 +156,7 @@ else ()
 
     if (perftools_profiler_library AND Perftools_INCLUDE_DIRS)
         set(Perftools_PROFILER_LIBRARY ${perftools_profiler_library})
-        set(Perftools_LIBRARIES 
+        set(Perftools_LIBRARIES
             ${Perftools_LIBRARIES} ${perftools_profiler_library})
     endif ()
 

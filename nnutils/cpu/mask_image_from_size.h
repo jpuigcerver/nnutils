@@ -18,7 +18,7 @@ void mask_image_from_size(const Int N, const Int C, const Int H, const Int W,
   // TODO(joapuipe): Depending on the number of elements to mask, it may be
   // more efficient to parallelize only across N and C, and mask only the
   // in pixels y >= im_h or x >= im_w.
-  #pragma omp parallel for(4)
+  #pragma omp parallel for collapse(4)
   for (Int n = 0; n < N; ++n) {
     for (Int c = 0; c < C; ++c) {
       for (int y = 0; y < H; ++y) {
@@ -39,7 +39,7 @@ void mask_image_from_size(const Int N, const Int C, const Int H, const Int W,
 #endif  // __cplusplus
 
 #define DECLARE_C_BINDING(STYPE, TYPE)                                    \
-  extern "C" void nnutils_cpu_mask_image_from_size_##STYPE                \
+  extern "C" void nnutils_cpu_mask_image_from_size_##STYPE(               \
     const int N, const int C, const int H, const int W, const int *sizes, \
     TYPE *im, const TYPE mask)
 

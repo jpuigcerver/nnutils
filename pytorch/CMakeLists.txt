@@ -1,7 +1,49 @@
-FIND_PROGRAM(PYTHON "python")
+IF(PYTORCH_FOUND AND WITH_PYTORCH)
+  SET(_EXTERNAL_LIBS)
+  SET(_EXTERNAL_DIRS)
+  IF(CUDA_FOUND AND WITH_CUDA)
+    INCLUDE_DIRECTORIES("${PYTORCH_INCLUDE_DIR}/TH")
+    INCLUDE_DIRECTORIES("${PYTORCH_INCLUDE_DIR}/THC")
+    CUDA_ADD_LIBRARY(nnutils_ STATIC
+      ../nnutils/cpu/mask_image_from_size.h
+      ../nnutils/gpu/mask_image_from_size.h
+      src/binding_common.h
+      src/binding_cpu.h
+      src/binding_gpu.h
+      src/binding_gpu.cu
+      src/binding_cpu.cc)
+    LIST(APPEND _EXTERNAL_LIBS ${PYTORCH_TH_LIBRARY})
+    LIST(APPEND _EXTERNAL_LIBS ${PYTORCH_THC_LIBRARY})
+    LIST(APPEND _EXTERNAL_LIBS ${BLAS_LIBRARIES})
+    LIST(APPEND _EXTERNAL_LIBS ${CMAKE_THREAD_LIBS_INIT})
+  ELSE()
+    INCLUDE_DIRECTORIES("${PYTORCH_INCLUDE_DIR}/TH")
+    ADD_LIBRARY(nnutils_ STATIC
+      ../nnutils/cpu/mask_image_from_size.h
+      src/binding_common.h
+      src/binding_cpu.h
+      src/binding_cpu.cc)
+    LIST(APPEND _EXTERNAL_LIBS ${PYTORCH_TH_LIBRARY})
+    LIST(APPEND _EXTERNAL_LIBS ${BLAS_LIBRARIES})
+    LIST(APPEND _EXTERNAL_LIBS ${CMAKE_THREAD_LIBS_INIT})
+  ENDIF(CUDA_FOUND AND WITH_CUDA)
+  LIST(APPEND _EXTERNAL_LIBS ${CMAKE_CURRENT_BINARY_DIR}/libnnutils_.a)
 
-IF(PYTHON)
-  CONFIGURE_FILE(
-      "${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in"
-      "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
-ENDIF()
+
+  GET_PROPERTY(_EXTERNAL_DIRS DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
+
+
+  SET(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in")
+  SET(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
+  SET(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/build/timestamp")
+
+  CONFIGURE_FILE("${SETUP_PY_IN}"  "${SETUP_PY}")
+  ADD_CUSTOM_COMMAND(OUTPUT "${OUTPUT}"
+    COMMAND ${PYTHON_EXECUTABLE} "${SETUP_PY}" build
+    COMMAND ${CMAKE_COMMAND} -E touch "${OUTPUT}"
+    DEPENDS nnutils_pytorch/__init__.py)
+  ADD_CUSTOM_TARGET(nnutils_pytorch ALL DEPENDS "${OUTPUT}" nnutils_)
+
+  INSTALL(
+    CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install)")
+ENDIF(PYTORCH_FOUND AND WITH_PYTORCH)

@@ -13,11 +13,11 @@ namespace gpu {
 
 namespace internal {
 
-template <typename T, typename Int, const int NTX, const int NTY, const int NTZ>
+template <typename T, typename Int, int THZ>
 __global__
 void mask_image_from_size(const Int N, const Int C, const Int H, const Int W,
                           const Int* sizes, T* im, const T mask = 0) {
-  __shared__ Int _sizes[2 * NTZ];
+  __shared__ Int _sizes[2];
 
   for (Int n = thGz; n < N; n += NTGz) {
     // Copy image size to shared memory to avoid repeated access to global mem.
@@ -55,7 +55,7 @@ void mask_image_from_size(const Int N, const Int C, const Int H, const Int W,
   const dim3 grid_size(NUM_BLOCKS(H * W, 512),
                        NUM_BLOCKS(C, 1),
                        NUM_BLOCKS(N, 1));
-  internal::mask_image_from_size<<<grid_size, block_size, 0, stream>>>(
+  internal::mask_image_from_size<T, Int, 1><<<grid_size, block_size, 0, stream>>>(
       N, C, H, W, sizes, im, mask);
   if (stream != nullptr) {
     CHECK_LAST_CUDA_CALL();
@@ -67,7 +67,7 @@ void mask_image_from_size(const Int N, const Int C, const Int H, const Int W,
 #endif  // __cplusplus
 
 #define DECLARE_C_BINDING(STYPE, TYPE)                                    \
-  extern "C" void nnutils_gpu_mask_image_from_size_##STYPE                \
+  extern "C" void nnutils_gpu_mask_image_from_size_##STYPE(               \
     const int N, const int C, const int H, const int W, const int *sizes, \
     TYPE *im, const TYPE mask, cudaStream_t stream)
 

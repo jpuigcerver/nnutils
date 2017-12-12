@@ -6,11 +6,17 @@
 
 #include <algorithm>
 
+#define DIV_UP(x, y) (((x) + (y) - 1) / (y))
+
 #define NUM_BLOCKS(n, s) std::min<int>(DIV_UP(n, s), 65535)
 
-#define CHECK_CUDA_CALL(status)                                          \
-  CHECK_EQ((status), cudaSuccess) << "CUDA error : " << (status) << " (" \
-  << cudaGetErrorString((status))  << ")"
+#define CHECK_CUDA_CALL(status) do {                                    \
+    if ((status) != cudaSuccess) {                                      \
+      fprintf(stderr, "CUDA error : %d (%s)\n", status,                 \
+              cudaGetErrorString((status)));                            \
+      exit(1);                                                          \
+    }                                                                   \
+  } while(0)
 
 #define CHECK_LAST_CUDA_CALL() CHECK_CUDA_CALL(cudaPeekAtLastError())
 

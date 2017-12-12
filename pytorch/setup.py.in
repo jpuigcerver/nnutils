@@ -5,31 +5,38 @@ import sys
 from distutils.core import setup
 from torch.utils.ffi import create_extension
 
-extra_compile_args = ['-std=c++11', '-fPIC']
+WITH_CUDA = True if ('${WITH_CUDA}').upper() == 'ON' else False
 
-if "CUDA_HOME" not in os.environ:
-    print("CUDA_HOME not found in the environment so building "
-          "without GPU support. To build with GPU support "
-          "please define the CUDA_HOME environment variable. "
-          "This should be a path which contains include/cuda.h")
-    enable_gpu = False
-else:
-    enable_gpu = True
+headers = ['${PROJECT_SOURCE_DIR}/pytorch/src/binding_cpu.h']
+if WITH_CUDA:
+    headers += ['${PROJECT_SOURCE_DIR}/pytorch/src/binding_gpu.h']
 
-if platform.system() == 'Darwin':
-    lib_ext = ".dylib"
-else:
-    lib_ext = ".so"
+print(WITH_CUDA)
 
-if enable_gpu:
-    extra_compile_args += '-DWITH_CUDA'
+include_dirs=['${PROJECT_SOURCE_DIR}'] + '${_EXTERNAL_DIRS}'.split(';')
+
+external_libs='${_EXTERNAL_LIBS}'.split(';')
+
+extra_objects=[lib for lib in external_libs if lib[:2] != '-l']
+libraries=[lib[2:] for lib in external_libs if lib[:2] == '-l']
 
 ffi = create_extension(
     name='nnutils',
-    language='c++',
-    headers=['src/binding.h'],
-    sources=['src/binding.cc'],
-    with_cuda=enable_gpu)
+    language='c',
+    headers=headers,
+    sources=[],
+    with_cuda=WITH_CUDA,
+    include_dirs=include_dirs,
+    libraries=libraries,
+    extra_objects=extra_objects,
+    verbose=True)
+
 ffi = ffi.distutils_extension()
-
-
+ffi.name = 'nnutils_pytorch._nnutils'
+setup(
+    name='nnutils_pytorch',
+    version='0.0',
+    license='MIT',
+    packages=['nnutils_pytorch'],
+    ext_modules=[ffi],
+    package_dir={'': '${CMAKE_CURRENT_SOURCE_DIR}'})
