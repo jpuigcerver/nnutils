@@ -13,7 +13,7 @@ namespace gpu {
 
 namespace internal {
 
-template <typename T, typename Int, int THZ>
+template <typename T, typename Int>
 __global__
 void mask_image_from_size(const Int N, const Int C, const Int H, const Int W,
                           const Int* sizes, T* im, const T mask = 0) {
@@ -55,7 +55,7 @@ void mask_image_from_size(const Int N, const Int C, const Int H, const Int W,
   const dim3 grid_size(NUM_BLOCKS(H * W, 512),
                        NUM_BLOCKS(C, 1),
                        NUM_BLOCKS(N, 1));
-  internal::mask_image_from_size<T, Int, 1><<<grid_size, block_size, 0, stream>>>(
+  internal::mask_image_from_size<T, Int><<<grid_size, block_size, 0, stream>>>(
       N, C, H, W, sizes, im, mask);
   if (stream != nullptr) {
     CHECK_LAST_CUDA_CALL();
