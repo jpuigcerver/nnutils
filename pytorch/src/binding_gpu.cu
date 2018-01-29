@@ -16,7 +16,7 @@ namespace internal {
 
 template <>
 inline void wrap_mask_image_from_size<THCudaTensor, float>(
-    const int N, const int C, const int H, const int W, const int *sizes,
+    const long N, const long C, const long H, const long W, const long *sizes,
     float *im, const float mask) {
   cudaStream_t stream = THCState_getCurrentStream(state);
   ::nnutils::gpu::mask_image_from_size(N, C, H, W, sizes, im, mask, stream);
@@ -24,7 +24,7 @@ inline void wrap_mask_image_from_size<THCudaTensor, float>(
 
 template <>
 inline void wrap_mask_image_from_size<THCudaDoubleTensor, double>(
-    const int N, const int C, const int H, const int W, const int *sizes,
+    const long N, const long C, const long H, const long W, const long *sizes,
     double *im, const double mask) {
   cudaStream_t stream = THCState_getCurrentStream(state);
   ::nnutils::gpu::mask_image_from_size(N, C, H, W, sizes, im, mask, stream);
@@ -34,5 +34,5 @@ inline void wrap_mask_image_from_size<THCudaDoubleTensor, double>(
 }  // namespace nnutils
 
 
-DEFINE_WRAPPER(THCudaTensor, THCudaIntTensor, float)
-DEFINE_WRAPPER(THCudaDoubleTensor, THCudaIntTensor, double)
+DEFINE_WRAPPER(THCudaTensor, THCudaLongTensor, float)
+DEFINE_WRAPPER(THCudaDoubleTensor, THCudaLongTensor, double)

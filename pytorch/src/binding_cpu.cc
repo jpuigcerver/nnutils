@@ -14,14 +14,14 @@ namespace internal {
 
 template <>
 inline void wrap_mask_image_from_size<THFloatTensor, float>(
-    const int N, const int C, const int H, const int W, const int *sizes,
+    const long N, const long C, const long H, const long W, const long *sizes,
     float *im, const float mask) {
   ::nnutils::cpu::mask_image_from_size(N, C, H, W, sizes, im, mask);
 }
 
 template <>
 inline void wrap_mask_image_from_size<THDoubleTensor, double>(
-    const int N, const int C, const int H, const int W, const int *sizes,
+    const long N, const long C, const long H, const long W, const long *sizes,
     double *im, const double mask) {
   ::nnutils::cpu::mask_image_from_size(N, C, H, W, sizes, im, mask);
 }
@@ -29,5 +29,5 @@ inline void wrap_mask_image_from_size<THDoubleTensor, double>(
 }  // namespace internal
 }  // namespace nnutils
 
-DEFINE_WRAPPER(THFloatTensor, THIntTensor, float)
-DEFINE_WRAPPER(THDoubleTensor, THIntTensor, double)
+DEFINE_WRAPPER(THFloatTensor, THLongTensor, float)
+DEFINE_WRAPPER(THDoubleTensor, THLongTensor, double)

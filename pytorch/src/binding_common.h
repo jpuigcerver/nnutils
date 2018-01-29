@@ -7,7 +7,7 @@ namespace internal {
 
 template <typename TensorType, typename DataType>
 inline void wrap_mask_image_from_size(
-    const int N, const int C, const int H, const int W, const int *sizes,
+    const long N, const long C, const long H, const long W, const long *sizes,
     DataType *im, const DataType mask);
 
 }  // namespace internal
@@ -22,13 +22,13 @@ inline void wrap_mask_image_from_size(
     assert(batch_sizes->size[0] == batch->size[0]);                     \
     assert(batch_sizes->size[1] == 2);                                  \
                                                                         \
-    const int N = batch->size[0];                                       \
-    const int C = batch->size[1];                                       \
-    const int H = batch->size[2];                                       \
-    const int W = batch->size[3];                                       \
+    const long N = batch->size[0];                                      \
+    const long C = batch->size[1];                                      \
+    const long H = batch->size[2];                                      \
+    const long W = batch->size[3];                                      \
                                                                         \
     DTYPE* batch_ptr = batch->storage->data + batch->storageOffset;     \
-    const int* batch_sizes_ptr =                                        \
+    const long* batch_sizes_ptr =                                       \
         batch_sizes->storage->data + batch_sizes->storageOffset;        \
     ::nnutils::internal::wrap_mask_image_from_size<TTYPE, DTYPE>(       \
          N, C, H, W, batch_sizes_ptr, batch_ptr, mask);                 \

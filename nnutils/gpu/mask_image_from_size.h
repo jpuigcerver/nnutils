@@ -26,8 +26,8 @@ void mask_image_from_size(const Int N, const Int C, const Int H, const Int W,
       _sizes[2 * thBz + 1] = sizes[2 * n + 1];
     }
     __syncthreads();
-    const int im_h = _sizes[2 * thBz + 0];
-    const int im_w = _sizes[2 * thBz + 1];
+    const Int im_h = _sizes[2 * thBz + 0];
+    const Int im_w = _sizes[2 * thBz + 1];
     for (Int c = thGy; c < C; c += NTGy) {
       for (Int i = thGx; i < H * W; i += NTGx) {
         const Int x = i % W;
@@ -57,7 +57,7 @@ void mask_image_from_size(const Int N, const Int C, const Int H, const Int W,
                        NUM_BLOCKS(N, 1));
   internal::mask_image_from_size<T, Int><<<grid_size, block_size, 0, stream>>>(
       N, C, H, W, sizes, im, mask);
-  if (stream != nullptr) {
+  if (stream == nullptr) {
     CHECK_LAST_CUDA_CALL();
   }
 }

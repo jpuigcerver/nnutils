@@ -15,19 +15,20 @@
 namespace nnutils {
 namespace internal {
 
-template <typename T>
+template <typename T, typename Int>
 __host__ __device__
-inline T& pixv(T* dst, const int p, const int y, const int x) {
+inline T& pixv(T* dst, const Int p, const Int y, const Int x) {
   return dst[y * p + x];
 }
 
-template <typename T>
+template <typename T, typename Int>
 __host__ __device__
-inline const T& pixv(const T* dst, const int p, const int y, const int x) {
+inline const T& pixv(const T* dst, const Int p, const Int y, const Int x) {
   return dst[y * p + x];
 }
 
 template <typename Int>
+__host__ __device__
 inline Int InputIndex(Int a, Int b, Int c) {
   return static_cast<Int>(floor(static_cast<float>(a * c) / b));
 }
