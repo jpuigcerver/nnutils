@@ -3,9 +3,11 @@ PROJECT(nnutils)
 ENABLE_TESTING()
 
 OPTION(WITH_CUDA "Compile binaries with CUDA support" ON)
-OPTION(WITH_PYTORCH "Compile with PyTorch bindings" ON)
 OPTION(WITH_OPENMP "Compile with OpenMP support" ON)
 OPTION(WITH_PERFTOOLS "Compile with Google Perftools support" OFF)
+OPTION(WITH_PYTORCH "Compile with PyTorch bindings" ON)
+OPTION(WITH_TESTS "Compile test" ON)
+
 SET(CUDA_ARCH_LIST "Auto" CACHE STRING "Compile with support for these CUDA architectures")
 
 LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
@@ -16,6 +18,7 @@ FIND_PACKAGE(CUDA)
 FIND_PACKAGE(OpenMP)
 FIND_PACKAGE(Perftools)
 FIND_PACKAGE(PyTorch)
+FIND_PACKAGE(GTest)
 
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 INCLUDE_DIRECTORIES(${GLOG_INCLUDE_DIRS})
@@ -81,3 +84,4 @@ ENDMACRO()
 
 ADD_SUBDIRECTORY(nnutils)
 ADD_SUBDIRECTORY(pytorch)
+ADD_SUBDIRECTORY(THW)

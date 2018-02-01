@@ -1,0 +1,11 @@
+qIF(GTEST_FOUND AND WITH_TESTS)
+  INCLUDE_DIRECTORIES(${GTEST_INCLUDE_DIRS})
+  INCLUDE_DIRECTORIES(/opt/torch_cuda-7.5/install/include/)
+
+
+  ADD_EXECUTABLE(THW_test test.cc)
+  TARGET_LINK_LIBRARIES(THW_test ${GTEST_BOTH_LIBRARIES})
+  TARGET_LINK_LIBRARIES(THW_test /opt/torch_cuda-7.5/install/lib/libTH.so.0)
+  TARGET_LINK_LIBRARIES(THW_test /opt/torch_cuda-7.5/install/lib/libTHC.so.0)
+  ADD_TEST(THW_test THW_test)
+ENDIF(GTEST_FOUND AND WITH_TESTS)
