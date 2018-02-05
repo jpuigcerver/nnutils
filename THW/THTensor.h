@@ -5,6 +5,8 @@
 
 #include <vector>
 
+struct THCState;
+
 namespace nnutils {
 namespace THW {
 
@@ -39,7 +41,10 @@ class ConstTensorBase {
     return true;
   }
 
+ protected:
   virtual const TType* GetTensor() const = 0;
+
+  virtual THCState* GetState() const = 0;
 };
 
 template <typename THTensor>
@@ -50,7 +55,7 @@ class MutableTensorBase : public ConstTensorBase<THTensor> {
 
   DType* Data();
 
-  void Fill(DType v);
+  void Fill(const DType& v);
 
   void Resize(const std::vector<long>& sizes) {
     ResizeNd(sizes.size(), sizes.data(), nullptr);
@@ -69,6 +74,7 @@ class MutableTensorBase : public ConstTensorBase<THTensor> {
 
   void Zero();
 
+ protected:
   virtual TType * GetMutableTensor() = 0;
 };
 
@@ -77,9 +83,11 @@ class ConstTensor : public ConstTensorBase<THTensor> {
  public:
   explicit ConstTensor(const THTensor* tensor) : tensor_(tensor) {}
 
+ protected:
   const THTensor* GetTensor() const override { return tensor_; }
 
- protected:
+  THCState* GetState() const override { return nullptr; }
+
   const THTensor* tensor_;
 };
 
@@ -88,11 +96,13 @@ class MutableTensor : public MutableTensorBase<THTensor> {
  public:
   explicit MutableTensor(THTensor* tensor) : tensor_(tensor) {}
 
+ protected:
   const THTensor* GetTensor() const override { return tensor_; }
 
   THTensor* GetMutableTensor() override { return tensor_; }
 
- protected:
+  THCState* GetState() const override { return nullptr; }
+
   THTensor* tensor_;
 };
 

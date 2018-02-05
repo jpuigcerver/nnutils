@@ -53,7 +53,8 @@ MutableTensorBase<THTensor>::DType* MutableTensorBase<THTensor>::Data() {
 }
 
 template <>
-void MutableTensorBase<THTensor>::Fill(DType v) {
+void MutableTensorBase<THTensor>::Fill(
+    const MutableTensorBase<THTensor>::DType& v) {
   THTensor_(fill)(GetMutableTensor(), v);
 }
 
