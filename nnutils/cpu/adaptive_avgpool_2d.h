@@ -10,10 +10,13 @@
 namespace nnutils {
 namespace cpu {
 
+using nnutils::internal::InputIndex;
+using nnutils::internal::pixv;
+
 template <typename T, typename Int>
 void adaptive_avgpool_2d_updateOutput(
     const Int N, const Int C, const Int inpH, const Int inpW, const Int* sizes,
-    const Int outH, const int outW, const T* inp, T* out) {
+    const Int outH, const Int outW, const T* inp, T* out) {
   assert(N > 0 && C > 0 && inpH > 0 && inpW > 0);
   assert(outH > 0 && outW > 0);
   assert(inp != nullptr);
@@ -22,8 +25,8 @@ void adaptive_avgpool_2d_updateOutput(
   #pragma omp parallel for collapse(4)
   for (Int n = 0; n < N; ++n) {
     for (Int c = 0; c < C; ++c) {
-      for (int y = 0; y < outH; ++y) {
-        for (int x  = 0; x < outW; ++x) {
+      for (Int y = 0; y < outH; ++y) {
+        for (Int x  = 0; x < outW; ++x) {
           const Int h = sizes ? sizes[2 * n    ] : inpH;  // original height
           const Int w = sizes ? sizes[2 * n + 1] : inpW;  // original width
           const Int inp_offset = n * C * inpH * inpW + c * inpH * inpW;
@@ -51,7 +54,7 @@ void adaptive_avgpool_2d_updateOutput(
 template <typename T, typename Int>
 void adaptive_avgpool_2d_updateGradInput(
     const Int N, const Int C, const Int inpH, const Int inpW, const Int* sizes,
-    const Int outH, const int outW, const T* gradOut, T* gradInp) {
+    const Int outH, const Int outW, const T* gradOut, T* gradInp) {
   assert(N > 0 && C > 0 && inpH > 0 && inpW > 0);
   assert(outH > 0 && outW > 0);
   assert(gradOut != nullptr);
@@ -60,8 +63,8 @@ void adaptive_avgpool_2d_updateGradInput(
   #pragma omp parallel for collapse(4)
   for (Int n = 0; n < N; ++n) {
     for (Int c = 0; c < C; ++c) {
-      for (int y = 0; y < outH; ++y) {
-        for (int x  = 0; x < outW; ++x) {
+      for (Int y = 0; y < outH; ++y) {
+        for (Int x  = 0; x < outW; ++x) {
           const Int h = sizes ? sizes[2 * n    ] : inpH;  // original height
           const Int w = sizes ? sizes[2 * n + 1] : inpW;  // original width
           const Int inp_offset = n * C * inpH * inpW + c * inpH * inpW;

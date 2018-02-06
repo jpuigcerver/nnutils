@@ -13,7 +13,15 @@ IF(PYTORCH_FOUND AND WITH_PYTORCH AND PYTHONINTERP_FOUND)
 
       ../nnutils/gpu/mask_image_from_size.h
       src/gpu/mask_image_from_size.h
-      src/gpu/mask_image_from_size.cu)
+      src/gpu/mask_image_from_size.cu
+
+      ../nnutils/cpu/adaptive_avgpool_2d.h
+      src/cpu/adaptive_avgpool_2d.h
+      src/cpu/adaptive_avgpool_2d.cc
+
+      ../nnutils/gpu/adaptive_avgpool_2d.h
+      src/gpu/adaptive_avgpool_2d.h
+      src/gpu/adaptive_avgpool_2d.cu)
     TARGET_INCLUDE_DIRECTORIES(nnutils_
       PRIVATE "${PYTORCH_INCLUDE_DIR}"
       PRIVATE "${PYTORCH_INCLUDE_DIR}/TH"
@@ -22,7 +30,11 @@ IF(PYTORCH_FOUND AND WITH_PYTORCH AND PYTHONINTERP_FOUND)
     ADD_LIBRARY(nnutils_ STATIC
       ../nnutils/cpu/mask_image_from_size.h
       src/cpu/mask_image_from_size.h
-      src/cpu/mask_image_from_size.cc)
+      src/cpu/mask_image_from_size.cc
+
+      ../nnutils/cpu/adaptive_avgpool_2d.h
+      src/cpu/adaptive_avgpool_2d.h
+      src/cpu/adaptive_avgpool_2d.cc)
     TARGET_INCLUDE_DIRECTORIES(nnutils_
       PRIVATE "${PYTORCH_INCLUDE_DIR}"
       PRIVATE "${PYTORCH_INCLUDE_DIR}/TH")

@@ -27,13 +27,13 @@ class MaskImageCaller : public ::nnutils::torch::MaskImageCaller<T> {
 
 template <typename TT, typename TI>
 void mask_image_from_size(
-    TT* batch, const TI* sizes, const typename TensorTraits<TT>::DType& mask) {
+    const TI* sizes, TT* batch, const typename TensorTraits<TT>::DType& mask) {
   typedef typename TensorTraits<TT>::DType DType;
 
-  MutableTensor<TT> mbatch(batch);
   ConstTensor<TI> msizes(sizes);
+  MutableTensor<TT> mbatch(batch);
   ::nnutils::torch::mask_image_from_size<TT, TI>(
-       &mbatch, &msizes, mask,
+       msizes, &mbatch, mask,
        ::nnutils::pytorch::cpu::MaskImageCaller<DType>());
 }
 
@@ -46,14 +46,13 @@ void mask_image_from_size(
   void nnutils_mask_image_from_size_cpu_##TSNAME(                       \
       TTYPE* batch, const TITYPE* sizes, DTYPE mask) {                  \
     ::nnutils::pytorch::cpu::mask_image_from_size<TTYPE, TITYPE>(       \
-         batch, sizes, mask);                                           \
+         sizes, batch, mask);                                           \
   }
 
-DEFINE_WRAPPER(u8, unsigned char, THByteTensor, THLongTensor)
-DEFINE_WRAPPER(s8, char, THCharTensor, THLongTensor)
-DEFINE_WRAPPER(s16, short int, THShortTensor, THLongTensor)
-DEFINE_WRAPPER(s32, int, THIntTensor, THLongTensor)
-DEFINE_WRAPPER(s64, long int, THLongTensor, THLongTensor)
-
-DEFINE_WRAPPER(f32, float, THFloatTensor, THLongTensor)
-DEFINE_WRAPPER(f64, double, THDoubleTensor, THLongTensor)
+DEFINE_WRAPPER(u8,  uint8_t, THByteTensor,   THLongTensor)
+DEFINE_WRAPPER(s8,  int8_t,  THCharTensor,   THLongTensor)
+DEFINE_WRAPPER(s16, int16_t, THShortTensor,  THLongTensor)
+DEFINE_WRAPPER(s32, int32_t, THIntTensor,    THLongTensor)
+DEFINE_WRAPPER(s64, int64_t, THLongTensor,   THLongTensor)
+DEFINE_WRAPPER(f32, float,   THFloatTensor,  THLongTensor)
+DEFINE_WRAPPER(f64, double,  THDoubleTensor, THLongTensor)
