@@ -16,24 +16,24 @@ class ConstTensorBase {
   typedef typename TensorTraits<THTensor>::TType TType;
   typedef typename TensorTraits<THTensor>::DType DType;
 
-  const DType* Data() const;
+  inline const DType* Data() const;
 
-  int Dims() const;
+  inline int Dims() const;
 
-  long Elems() const;
+  inline long Elems() const;
 
-  const long* Size() const;
+  inline const long* Size() const;
 
-  long Size(const int dim) const;
+  inline long Size(const int dim) const;
 
-  const long* Stride() const;
+  inline const long* Stride() const;
 
-  long Stride(const int dim) const;
+  inline long Stride(const int dim) const;
 
-  bool IsContiguous() const;
+  inline bool IsContiguous() const;
 
   template <typename OT>
-  bool IsSameSizeAs(const OT& other) const {
+  inline bool IsSameSizeAs(const OT& other) const {
     if (Dims() != other.Dims()) return false;
     for (int d = 0; d < Dims(); ++d) {
       if (Size(d) != other.Size(d)) return false;
@@ -53,26 +53,26 @@ class MutableTensorBase : public ConstTensorBase<THTensor> {
   typedef typename TensorTraits<THTensor>::TType TType;
   typedef typename TensorTraits<THTensor>::DType DType;
 
-  DType* Data();
+  inline DType* Data();
 
-  void Fill(const DType& v);
+  inline void Fill(const DType& v);
 
-  void Resize(const std::vector<long>& sizes) {
+  inline void Resize(const std::vector<long>& sizes) {
     ResizeNd(sizes.size(), sizes.data(), nullptr);
   }
 
   template <typename OT>
-  void ResizeAs(const OT& other) {
+  inline void ResizeAs(const OT& other) {
     if (!ConstTensorBase<THTensor>::IsSameSizeAs(other)) {
       ResizeNd(other.Dims(), other.Size(), other.Stride());
     }
   }
 
-  void ResizeNd(int nDimension, const long* size, const long* stride);
+  inline void ResizeNd(int nDimension, const long* size, const long* stride);
 
-  void Transpose(int d1, int d2);
+  inline void Transpose(int d1, int d2);
 
-  void Zero();
+  inline void Zero();
 
  protected:
   virtual TType * GetMutableTensor() = 0;

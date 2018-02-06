@@ -63,6 +63,33 @@ class MaskImageFromSizeTest(unittest.TestCase):
         self.convert(False, 'torch.LongTensor')
         self.run_base_test()
 
+def test_gpu_f32(self):
+    self.convert(True, 'torch.FloatTensor')
+    self.run_base_test()
+
+def test_gpu_f64(self):
+    self.convert(True, 'torch.DoubleTensor')
+    self.run_base_test()
+
+def test_gpu_s16(self):
+    self.convert(True, 'torch.ShortTensor')
+    self.run_base_test()
+
+def test_gpu_s32(self):
+    self.convert(True, 'torch.IntTensor')
+    self.run_base_test()
+
+def test_gpu_s64(self):
+    self.convert(True, 'torch.LongTensor')
+    self.run_base_test()
+
+# If cuda support is available, register tests to the class.
+if torch.cuda.is_available():
+    MaskImageFromSizeTest.test_gpu_f32 = test_gpu_f32
+    MaskImageFromSizeTest.test_gpu_f64 = test_gpu_f64
+    MaskImageFromSizeTest.test_gpu_s16 = test_gpu_s16
+    MaskImageFromSizeTest.test_gpu_s32 = test_gpu_s32
+    MaskImageFromSizeTest.test_gpu_s64 = test_gpu_s64
 
 if __name__ == '__main__':
     unittest.main()

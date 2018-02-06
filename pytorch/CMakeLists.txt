@@ -1,3 +1,6 @@
+SET(PYTORCH_SETUP_PREFIX ""
+  CACHE STRING "Prefix path passed to Python's setup.py.")
+
 IF(PYTORCH_FOUND AND WITH_PYTORCH)
   SET(_EXTERNAL_LIBS)
   SET(_EXTERNAL_DIRS)
@@ -24,7 +27,6 @@ IF(PYTORCH_FOUND AND WITH_PYTORCH)
       PRIVATE "${PYTORCH_INCLUDE_DIR}"
       PRIVATE "${PYTORCH_INCLUDE_DIR}/TH")
     LIST(APPEND _EXTERNAL_LIBS ${PYTORCH_TH_LIBRARY})
-    LIST(APPEND _EXTERNAL_LIBS ${BLAS_LIBRARIES})
   ENDIF(CUDA_FOUND AND WITH_CUDA)
 
   # Dependency with the wrapper code.
@@ -47,24 +49,49 @@ IF(PYTORCH_FOUND AND WITH_PYTORCH)
   SET(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
   SET(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/build/timestamp")
 
-
   CONFIGURE_FILE("${SETUP_PY_IN}"  "${SETUP_PY}")
   ADD_CUSTOM_COMMAND(OUTPUT "${OUTPUT}"
     COMMAND ${PYTHON_EXECUTABLE} "${SETUP_PY}" build
     COMMAND ${CMAKE_COMMAND} -E touch "${OUTPUT}"
-    DEPENDS nnutils_pytorch/__init__.py)
+    DEPENDS nnutils_pytorch/__init__.py
+    DEPENDS nnutils_pytorch/nnutils.py
+    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libnnutils_.a
+    WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
   ADD_CUSTOM_TARGET(nnutils_pytorch ALL DEPENDS "${OUTPUT}" nnutils_)
 
-  IF(NOT PYTHON_SETUP_PREFIX)
-    SET(PYTHON_SETUP_PREFIX "${CMAKE_INSTALL_PREFIX}")
-  ENDIF()
-  MESSAGE(STATUS ${PYTHON_SETUP_PREFIX})
+  # This command will "install" nnutils_pytorch after it's built into a
+  # temporal directory, in order to be able to run the Python tests without
+  # actually installing the library.
+  ADD_CUSTOM_COMMAND(TARGET nnutils_pytorch POST_BUILD
+    COMMAND ${PYTHON_EXECUTABLE} "${SETUP_PY}"
+    install --prefix=${CMAKE_CURRENT_BINARY_DIR}/inst
+    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+    VERBATIM)
 
-  IF(PYTHON_SETUP_PREFIX)
+  # TODO(jpuigcerver): Fix this to support Python3.
+  SET(_PYTHONPATH
+    $ENV{PYTHONPATH}:${CMAKE_CURRENT_BINARY_DIR}/build/lib/python2.7/site-packages)
+
+  ADD_TEST(NAME pytorch_nnutils_test
+    COMMAND ${CMAKE_COMMAND} -E env "PYHONPATH=${_PYTHONPATH}"
+    ${PYTHON_EXECUTABLE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/mask_image_from_size_test.py)
+
+  # If no PYTORCH_SETUP_PREFIX variable is given by the user, we will use
+  # CMAKE_INSTALL_PREFIX (if given).
+  IF(NOT PYTORCH_SETUP_PREFIX)
+    SET(PYTORCH_SETUP_PREFIX "${CMAKE_INSTALL_PREFIX}")
+  ENDIF()
+  MESSAGE(STATUS ${PYTORCH_SETUP_PREFIX})
+
+  # make install will just execute python setup.py.
+  # The install prefix will be PYTORCH_SETUP_PREFIX, if given. Or the system's
+  # default if not given.
+  IF(PYTORCH_SETUP_PREFIX)
     INSTALL(
-      CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install --prefix=${PYTHON_SETUP_PREFIX})")
+      CODE "EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install --prefix=${PYTORCH_SETUP_PREFIX} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
   ELSE()
     INSTALL(
-      CODE "execute_process(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install)")
-  ENDIF(PYTHON_SETUP_PREFIX)
+      CODE "EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
+  ENDIF(PYTORCH_SETUP_PREFIX)
 ENDIF(PYTORCH_FOUND AND WITH_PYTORCH)

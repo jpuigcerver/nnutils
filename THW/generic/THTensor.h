@@ -5,60 +5,60 @@
 namespace nnutils {
 namespace THW {
 
-template <>
+template <> inline
 const ConstTensorBase<THTensor>::DType*
 ConstTensorBase<THTensor>::Data() const {
   return THTensor_(data)(GetTensor());
 }
 
-template <>
+template <> inline
 int ConstTensorBase<THTensor>::Dims() const {
   return THTensor_(nDimension)(GetTensor());
 }
 
-template <>
+template <> inline
 bool ConstTensorBase<THTensor>::IsContiguous() const {
   return THTensor_(isContiguous)(GetTensor());
 }
 
-template <>
+template <> inline
 long ConstTensorBase<THTensor>::Elems() const {
   return THTensor_(nElement)(GetTensor());
 }
 
-template <>
+template <> inline
 const long* ConstTensorBase<THTensor>::Size() const {
   return GetTensor()->size;
 }
 
-template <>
+template <> inline
 long ConstTensorBase<THTensor>::Size(int dim) const {
   return THTensor_(size)(GetTensor(), dim);
 }
 
-template <>
+template <> inline
 const long* ConstTensorBase<THTensor>::Stride() const {
   return GetTensor()->stride;
 }
 
-template <>
+template <> inline
 long ConstTensorBase<THTensor>::Stride(int dim) const {
   return THTensor_(stride)(GetTensor(), dim);
 }
 
 
-template <>
+template <> inline
 MutableTensorBase<THTensor>::DType* MutableTensorBase<THTensor>::Data() {
   return THTensor_(data)(GetMutableTensor());
 }
 
-template <>
+template <> inline
 void MutableTensorBase<THTensor>::Fill(
     const MutableTensorBase<THTensor>::DType& v) {
   THTensor_(fill)(GetMutableTensor(), v);
 }
 
-template <>
+template <> inline
 void MutableTensorBase<THTensor>::ResizeNd(
     int nDimension, const long* size, const long* stride) {
   THTensor_(resizeNd)(GetMutableTensor(), nDimension,
@@ -66,12 +66,12 @@ void MutableTensorBase<THTensor>::ResizeNd(
                       const_cast<long*>(stride));
 }
 
-template <>
+template <> inline
 void MutableTensorBase<THTensor>::Transpose(int d1, int d2) {
   return THTensor_(transpose)(GetMutableTensor(), nullptr, d1, d2);
 }
 
-template <>
+template <> inline
 void MutableTensorBase<THTensor>::Zero() {
   return THTensor_(zero)(GetMutableTensor());
 }

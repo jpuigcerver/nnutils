@@ -5,60 +5,60 @@
 namespace nnutils {
 namespace THW {
 
-template <>
+template <> inline
 const ConstTensorBase<THCTensor>::DType*
 ConstTensorBase<THCTensor>::Data() const {
   return THCTensor_(data)(GetState(), GetTensor());
 }
 
-template <>
+template <> inline
 int ConstTensorBase<THCTensor>::Dims() const {
   return THCTensor_(nDimension)(GetState(), GetTensor());
 }
 
-template <>
+template <> inline
 bool ConstTensorBase<THCTensor>::IsContiguous() const {
   return THCTensor_(isContiguous)(GetState(), GetTensor());
 }
 
-template <>
+template <> inline
 long ConstTensorBase<THCTensor>::Elems() const {
   return THCTensor_(nElement)(GetState(), GetTensor());
 }
 
-template <>
+template <> inline
 const long* ConstTensorBase<THCTensor>::Size() const {
   return GetTensor()->size;
 }
 
-template <>
+template <> inline
 long ConstTensorBase<THCTensor>::Size(int dim) const {
   return THCTensor_(size)(GetState(), GetTensor(), dim);
 }
 
-template <>
+template <> inline
 const long* ConstTensorBase<THCTensor>::Stride() const {
   return GetTensor()->stride;
 }
 
-template <>
+template <> inline
 long ConstTensorBase<THCTensor>::Stride(int dim) const {
   return THCTensor_(stride)(GetState(), GetTensor(), dim);
 }
 
 
-template <>
+template <> inline
 MutableTensorBase<THCTensor>::DType* MutableTensorBase<THCTensor>::Data() {
   return THCTensor_(data)(GetState(), GetMutableTensor());
 }
 
-template <>
+template <> inline
 void MutableTensorBase<THCTensor>::Fill(
     const MutableTensorBase<THCTensor>::DType& v) {
   THCTensor_(fill)(GetState(), GetMutableTensor(), v);
 }
 
-template <>
+template <> inline
 void MutableTensorBase<THCTensor>::ResizeNd(
     int nDimension, const long* size, const long* stride) {
   THCTensor_(resizeNd)(GetState(), GetMutableTensor(), nDimension,
@@ -66,12 +66,12 @@ void MutableTensorBase<THCTensor>::ResizeNd(
                        const_cast<long*>(stride));
 }
 
-template <>
+template <> inline
 void MutableTensorBase<THCTensor>::Transpose(int d1, int d2) {
   THCTensor_(transpose)(GetState(), GetMutableTensor(), nullptr, d1, d2);
 }
 
-template <>
+template <> inline
 void MutableTensorBase<THCTensor>::Zero() {
   THCTensor_(zero)(GetState(), GetMutableTensor());
 }
