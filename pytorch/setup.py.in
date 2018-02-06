@@ -1,24 +1,31 @@
-import os
-import platform
-import sys
+import re
 
 from distutils.core import setup
 from torch.utils.ffi import create_extension
 
 WITH_CUDA = True if ('${WITH_CUDA}').upper() == 'ON' else False
 
-headers = ['${PROJECT_SOURCE_DIR}/pytorch/src/binding_cpu.h']
+headers = ['${PROJECT_SOURCE_DIR}/pytorch/src/cpu/mask_image_from_size.h']
 if WITH_CUDA:
-    headers += ['${PROJECT_SOURCE_DIR}/pytorch/src/binding_gpu.h']
+    headers += ['${PROJECT_SOURCE_DIR}/pytorch/src/gpu/mask_image_from_size.h']
 
-print(WITH_CUDA)
 
 include_dirs=['${PROJECT_SOURCE_DIR}'] + '${_EXTERNAL_DIRS}'.split(';')
 
+library_dirs=['${PROJECT_BINARY_DIR}/src']
+
 external_libs='${_EXTERNAL_LIBS}'.split(';')
 
-extra_objects=[lib for lib in external_libs if lib[:2] != '-l']
-libraries=[lib[2:] for lib in external_libs if lib[:2] == '-l']
+
+extra_objects=[]
+libraries=[]
+for lib in external_libs:
+    if lib[:2] == '-l':
+        libraries.append(lib[2:])
+    elif re.match(r'^.*\.[^./\\]+$', lib) is not None:
+        extra_objects.append(lib)
+    else:
+        libraries.append(lib)
 
 ffi = create_extension(
     name='nnutils',
@@ -27,6 +34,7 @@ ffi = create_extension(
     sources=[],
     with_cuda=WITH_CUDA,
     include_dirs=include_dirs,
+    library_dirs=library_dirs,
     libraries=libraries,
     extra_objects=extra_objects,
     verbose=True)
