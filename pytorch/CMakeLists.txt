@@ -1,62 +1,37 @@
 SET(PYTORCH_SETUP_PREFIX ""
   CACHE STRING "Prefix path passed to Python's setup.py.")
 
+ADD_SUBDIRECTORY(src)
+
 IF(PYTORCH_FOUND AND WITH_PYTORCH AND PYTHONINTERP_FOUND)
   SET(_EXTERNAL_LIBS)
   SET(_EXTERNAL_DIRS)
 
-  IF(CUDA_FOUND AND WITH_CUDA)
-    CUDA_ADD_LIBRARY(nnutils_ STATIC
-      ../nnutils/cpu/mask_image_from_size.h
-      src/cpu/mask_image_from_size.h
-      src/cpu/mask_image_from_size.cc
-
-      ../nnutils/gpu/mask_image_from_size.h
-      src/gpu/mask_image_from_size.h
-      src/gpu/mask_image_from_size.cu
-
-      ../nnutils/cpu/adaptive_avgpool_2d.h
-      src/cpu/adaptive_avgpool_2d.h
-      src/cpu/adaptive_avgpool_2d.cc
-
-      ../nnutils/gpu/adaptive_avgpool_2d.h
-      src/gpu/adaptive_avgpool_2d.h
-      src/gpu/adaptive_avgpool_2d.cu)
-    TARGET_INCLUDE_DIRECTORIES(nnutils_
-      PRIVATE "${PYTORCH_INCLUDE_DIR}"
-      PRIVATE "${PYTORCH_INCLUDE_DIR}/TH"
-      PRIVATE "${PYTORCH_INCLUDE_DIR}/THC")
-  ELSE()
-    ADD_LIBRARY(nnutils_ STATIC
-      ../nnutils/cpu/mask_image_from_size.h
-      src/cpu/mask_image_from_size.h
-      src/cpu/mask_image_from_size.cc
-
-      ../nnutils/cpu/adaptive_avgpool_2d.h
-      src/cpu/adaptive_avgpool_2d.h
-      src/cpu/adaptive_avgpool_2d.cc)
-    TARGET_INCLUDE_DIRECTORIES(nnutils_
-      PRIVATE "${PYTORCH_INCLUDE_DIR}"
-      PRIVATE "${PYTORCH_INCLUDE_DIR}/TH")
-    LIST(APPEND _EXTERNAL_LIBS ${PYTORCH_TH_LIBRARY})
-  ENDIF(CUDA_FOUND AND WITH_CUDA)
-
   # Dependency with the wrapper code.
-  LIST(APPEND _EXTERNAL_LIBS ${CMAKE_CURRENT_BINARY_DIR}/libnnutils_.a)
-
-  # Dependency with CUDA
+  LIST(APPEND _EXTERNAL_LIBS
+    ${CMAKE_CURRENT_BINARY_DIR}/src/cpu/libpytorch_cpu_.a)
   IF(CUDA_FOUND AND WITH_CUDA)
-    LIST(APPEND _EXTERNAL_LIBS ${PYTORCH_TH_LIBRARY})
-    LIST(APPEND _EXTERNAL_LIBS ${PYTORCH_THC_LIBRARY})
-    LIST(APPEND _EXTERNAL_LIBS ${CUDA_LIBRARIES})
+    LIST(APPEND _EXTERNAL_LIBS
+      ${CMAKE_CURRENT_BINARY_DIR}/src/gpu/libpytorch_gpu_.a)
   ENDIF(CUDA_FOUND AND WITH_CUDA)
 
-  # Dependency with threading library
-  LIST(APPEND _EXTERNAL_LIBS ${CMAKE_THREAD_LIBS_INIT})
+  # Dependency with other libraries needed by the cpu and gpu implementations.
+  GET_PROPERTY(_AUX_LIBS TARGET pytorch_cpu_
+    PROPERTY LINK_LIBRARIES)
+  GET_PROPERTY(_AUX_DIRS TARGET pytorch_cpu_
+    PROPERTY INCLUDE_DIRECTORIES)
+  LIST(APPEND _EXTERNAL_LIBS "${_AUX_LIBS}")
+  LIST(APPEND _EXTERNAL_DIRS "${_AUX_DIRS}")
+  IF(CUDA_FOUND AND WITH_CUDA)
+    GET_PROPERTY(_AUX_LIBS TARGET pytorch_gpu_
+      PROPERTY LINK_LIBRARIES)
+    GET_PROPERTY(_AUX_DIRS TARGET pytorch_gpu_
+      PROPERTY INCLUDE_DIRECTORIES)
+    LIST(APPEND _EXTERNAL_LIBS "${_AUX_LIBS}")
+    LIST(APPEND _EXTERNAL_DIRS "${_AUX_DIRS}")
+  ENDIF(CUDA_FOUND AND WITH_CUDA)
 
-  # Add include directories needed for the Python extension compilation.
-  GET_PROPERTY(_EXTERNAL_DIRS TARGET nnutils_ PROPERTY INCLUDE_DIRECTORIES)
-
+  # Prepare setup.py
   SET(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in")
   SET(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
   SET(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/build/timestamp")
@@ -67,10 +42,12 @@ IF(PYTORCH_FOUND AND WITH_PYTORCH AND PYTHONINTERP_FOUND)
     COMMAND ${CMAKE_COMMAND} -E touch "${OUTPUT}"
     DEPENDS nnutils_pytorch/__init__.py
     DEPENDS nnutils_pytorch/nnutils.py
-    DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libnnutils_.a
+    DEPENDS pytorch_cpu_
+    # This will probably cause troubles if cuda implementations are not avail.
+    DEPENDS pytorch_gpu_
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
   # Custom target to run setup.py build during make
-  ADD_CUSTOM_TARGET(nnutils_pytorch ALL DEPENDS "${OUTPUT}" nnutils_)
+  ADD_CUSTOM_TARGET(nnutils_pytorch ALL DEPENDS "${OUTPUT}")
 
   # This command will "install" nnutils_pytorch after it's built into a
   # temporal directory, in order to be able to run the Python tests without
@@ -90,9 +67,13 @@ IF(PYTORCH_FOUND AND WITH_PYTORCH AND PYTHONINTERP_FOUND)
   ADD_TEST(NAME pytorch_adaptive_avgpool_2d_test
     COMMAND ${PYTHON_EXECUTABLE}
     ${CMAKE_CURRENT_SOURCE_DIR}/test/adaptive_avgpool_2d_test.py)
+  ADD_TEST(NAME pytorch_adaptive_maxpool_2d_test
+    COMMAND ${PYTHON_EXECUTABLE}
+    ${CMAKE_CURRENT_SOURCE_DIR}/test/adaptive_maxpool_2d_test.py)
   SET_TESTS_PROPERTIES(
     pytorch_mask_image_from_size_test
     pytorch_adaptive_avgpool_2d_test
+    pytorch_adaptive_maxpool_2d_test
     PROPERTIES
     ENVIRONMENT PYTHONPATH=${_PYTHONPATH})
   # If no PYTORCH_SETUP_PREFIX variable is given by the user, we will use
@@ -100,7 +81,6 @@ IF(PYTORCH_FOUND AND WITH_PYTORCH AND PYTHONINTERP_FOUND)
   IF(NOT PYTORCH_SETUP_PREFIX)
     SET(PYTORCH_SETUP_PREFIX "${CMAKE_INSTALL_PREFIX}")
   ENDIF()
-  MESSAGE(STATUS ${PYTORCH_SETUP_PREFIX})
 
   # make install will just execute python setup.py.
   # The install prefix will be PYTORCH_SETUP_PREFIX, if given. Or the system's

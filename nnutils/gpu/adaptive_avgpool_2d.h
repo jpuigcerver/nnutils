@@ -160,19 +160,4 @@ void adaptive_avgpool_2d_bwd(
 }  // namespace nnutils
 #endif  // __cplusplus
 
-#define DECLARE_C_BINDING(STYPE, TYPE)                                  \
-  extern "C" void nnutils_gpu_adaptive_avgpool_2d_##STYPE##_fwd(        \
-      const int N, const int C, const int inpH, const int inpW,         \
-      const int* sizes, const int outH, const int outW,                 \
-      const TYPE* inp, TYPE* out);                                      \
-                                                                        \
-  extern "C" void nnutils_gpu_adaptive_avgpool_2d_##STYPE##_bwd(        \
-      const int N, const int C, const int inpH, const int inpW,         \
-      const int* sizes, const int outH, const int outW,                 \
-      const TYPE* gradOut, TYPE* gradInpt)
-
-DECLARE_C_BINDING(f32, float);
-DECLARE_C_BINDING(f64, double);
-
-#undef DECLARE_C_BINDING
 #endif  // NNUTILS_GPU_ADAPTIVE_AVGPOOL_2D_H_

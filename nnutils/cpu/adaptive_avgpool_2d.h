@@ -5,7 +5,6 @@
 #include <nnutils/utils.h>
 
 #include <cassert>
-#include <iostream>
 
 #ifdef __cplusplus
 namespace nnutils {
@@ -106,19 +105,4 @@ void adaptive_avgpool_2d_bwd(
 }  // namespace nnutils
 #endif  // __cplusplus
 
-#define DECLARE_C_BINDING(STYPE, TYPE)                                  \
-  extern "C" void nnutils_cpu_adaptive_avgpool_2d_##STYPE##_fwd(        \
-      const int N, const int C, const int inpH, const int inpW,         \
-      const int* sizes, const int outH, const int outW,                 \
-      const TYPE* input, TYPE* output);                                 \
-                                                                        \
-  extern "C" void nnutils_cpu_adaptive_avgpool_2d_##STYPE##_bwd(        \
-      const int N, const int C, const int inpH, const int inpW,         \
-      const int* sizes, const int outH, const int outW,                 \
-      const TYPE* grad_output, TYPE* grad_input)
-
-DECLARE_C_BINDING(f32, float);
-DECLARE_C_BINDING(f64, double);
-
-#undef DECLARE_C_BINDING
 #endif  // NNUTILS_CPU_ADAPTIVE_AVGPOOL_2D_H_

@@ -65,10 +65,5 @@ class AdaptiveAvgpool2dCaller : public torch::AdaptiveAvgpool2dCaller<T> {
         ::nnutils::pytorch::cpu::AdaptiveAvgpool2dCaller<DType>());     \
   }
 
-DEFINE_WRAPPER(u8, THByteTensor, THLongTensor)
-DEFINE_WRAPPER(s8, THCharTensor, THLongTensor)
-DEFINE_WRAPPER(s16, THShortTensor, THLongTensor)
-DEFINE_WRAPPER(s32, THIntTensor, THLongTensor)
-DEFINE_WRAPPER(s64, THLongTensor, THLongTensor)
 DEFINE_WRAPPER(f32, THFloatTensor, THLongTensor)
 DEFINE_WRAPPER(f64, THDoubleTensor, THLongTensor)

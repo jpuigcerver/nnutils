@@ -38,13 +38,4 @@ void mask_image_from_size(const Int N, const Int C, const Int H, const Int W,
 }  // namespace nnutils
 #endif  // __cplusplus
 
-#define DECLARE_C_BINDING(STYPE, TYPE)                                    \
-  extern "C" void nnutils_cpu_mask_image_from_size_##STYPE(               \
-    const int N, const int C, const int H, const int W, const int *sizes, \
-    TYPE *im, const TYPE mask)
-
-DECLARE_C_BINDING(f32, float);
-DECLARE_C_BINDING(f64, double);
-
-#undef DECLARE_C_BINDING
 #endif  // NNUTILS_CPU_MASK_IMAGE_FROM_SIZE_H_
