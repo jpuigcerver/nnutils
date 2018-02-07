@@ -5,10 +5,11 @@ from torch.utils.ffi import create_extension
 
 WITH_CUDA = True if ('${WITH_CUDA}').upper() == 'ON' else False
 
-headers = ['${PROJECT_SOURCE_DIR}/pytorch/src/cpu/mask_image_from_size.h']
+headers = ['${PROJECT_SOURCE_DIR}/pytorch/src/cpu/mask_image_from_size.h',
+           '${PROJECT_SOURCE_DIR}/pytorch/src/cpu/adaptive_avgpool_2d.h']
 if WITH_CUDA:
-    headers += ['${PROJECT_SOURCE_DIR}/pytorch/src/gpu/mask_image_from_size.h']
-
+    headers += ['${PROJECT_SOURCE_DIR}/pytorch/src/gpu/mask_image_from_size.h',
+                '${PROJECT_SOURCE_DIR}/pytorch/src/gpu/adaptive_avgpool_2d.h']
 
 include_dirs=['${PROJECT_SOURCE_DIR}'] + '${_EXTERNAL_DIRS}'.split(';')
 

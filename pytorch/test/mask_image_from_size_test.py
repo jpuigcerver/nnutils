@@ -7,13 +7,13 @@ from nnutils_pytorch import mask_image_from_size
 
 class MaskImageFromSizeTest(unittest.TestCase):
     def setUp(self):
-        self._x = Variable(torch.Tensor([[1, 2, 3 ,4],
-                                         [5, 6, 7, 8]]).resize_(2, 1, 1, 4),
-                           requires_grad=True)
-        self._s = Variable(torch.LongTensor([[1, 2],
-                                             [1, 3]]))
-        self._dy = Variable(torch.Tensor([[8, 7, 6, 5],
-                                          [4, 3, 2, 1]]).resize_(2, 1, 1, 4))
+        self._s = torch.LongTensor([[1, 2],
+                                    [1, 3]])
+        self._x = torch.Tensor([[1, 2, 3 ,4],
+                                [5, 6, 7, 8]]).resize_(2, 1, 1, 4)
+
+        self._dy = torch.Tensor([[8, 7, 6, 5],
+                                 [4, 3, 2, 1]]).resize_(2, 1, 1, 4)
 
         self._expect_y = torch.Tensor([[1, 2, -1, -1],
                                        [5, 6, 7, -1]]).resize_(2, 1, 1, 4)
@@ -36,12 +36,12 @@ class MaskImageFromSizeTest(unittest.TestCase):
             self._dy = self._dy.cpu()
 
     def run_base_test(self):
-        f = mask_image_from_size(-1)
-        y = f(self._x, self._s)
+        x = Variable(self._x, requires_grad=True)
+        xs = Variable(self._s, requires_grad=False)
+        y = mask_image_from_size(x, xs, mask_value=-1)
+        y.backward(self._dy, retain_graph=True)
         np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y)
-
-        dx, _ = f.backward(self._dy)
-        np.testing.assert_array_almost_equal(dx.data.cpu(), self._expect_dx)
+        np.testing.assert_array_almost_equal(x.grad.data.cpu(), self._expect_dx)
 
     def test_cpu_f32(self):
         self.convert(False, 'torch.FloatTensor')
