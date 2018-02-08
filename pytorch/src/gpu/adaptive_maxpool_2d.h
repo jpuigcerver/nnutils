@@ -28,29 +28,29 @@ void nnutils_adaptive_maxpool_2d_fwd_gpu_f64(
     THCudaLongTensor* index);
 
 void nnutils_adaptive_maxpool_2d_bwd_gpu_u8(
-    const THCudaByteTensor* grad_output, const THCudaLongTensor* sizes,
+    const THCudaByteTensor* grad_output,
     const THCudaLongTensor* index, THCudaByteTensor* grad_input);
 
 void nnutils_adaptive_maxpool_2d_bwd_gpu_s8(
-    const THCudaCharTensor* grad_output, const THCudaLongTensor* sizes,
+    const THCudaCharTensor* grad_output,
     const THCudaLongTensor* index, THCudaCharTensor* grad_input);
 
 void nnutils_adaptive_maxpool_2d_bwd_gpu_s16(
-    const THCudaShortTensor* grad_output, const THCudaLongTensor* sizes,
+    const THCudaShortTensor* grad_output,
     const THCudaLongTensor* index, THCudaShortTensor* grad_input);
 
 void nnutils_adaptive_maxpool_2d_bwd_gpu_s32(
-    const THCudaIntTensor* grad_output, const THCudaLongTensor* sizes,
+    const THCudaIntTensor* grad_output,
     const THCudaLongTensor* index, THCudaIntTensor* grad_input);
 
 void nnutils_adaptive_maxpool_2d_bwd_gpu_s64(
-    const THCudaLongTensor* grad_output, const THCudaLongTensor* sizes,
+    const THCudaLongTensor* grad_output,
     const THCudaLongTensor* index, THCudaLongTensor* grad_input);
 
 void nnutils_adaptive_maxpool_2d_bwd_gpu_f32(
-    const THCudaTensor* grad_output, const THCudaLongTensor* sizes,
+    const THCudaTensor* grad_output,
     const THCudaLongTensor* index, THCudaTensor* grad_input);
 
 void nnutils_adaptive_maxpool_2d_bwd_gpu_f64(
-    const THCudaDoubleTensor* grad_output, const THCudaLongTensor* sizes,
+    const THCudaDoubleTensor* grad_output,
     const THCudaLongTensor* index, THCudaDoubleTensor* grad_input);

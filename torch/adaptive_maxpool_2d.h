@@ -24,7 +24,7 @@ class AdaptiveMaxpool2dCaller {
 
   virtual void Backward(
       const long N, const long C, const long H, const long W,
-      const long Hout, const long Wout, const long* sizes, const T* g_output,
+      const long Hout, const long Wout, const T* g_output,
       const long* output_index, T* g_input) const = 0;
 };
 
@@ -58,13 +58,10 @@ void adaptive_maxpool_2d_fwd(
 
 template <typename T, typename IT>
 void adaptive_maxpool_2d_bwd(
-    const ConstTensor<IT>& sizes, const ConstTensor<T>& g_output,
-    const ConstTensor<IT>& output_index, MutableTensor<T>* g_input,
+    const ConstTensor<T>& g_output, const ConstTensor<IT>& output_index,
+    MutableTensor<T>* g_input,
     const AdaptiveMaxpool2dCaller<typename ConstTensor<T>::DType>& caller) {
   assert(g_output.Dims() == 4);
-  assert(sizes.Dims() == 2);
-  assert(sizes.Size(0) == g_output.Size(0));
-  assert(sizes.Size(1) == 2);
   assert(output_index.IsSameSizeAs(g_output));
 
   assert(g_input->Dims() == 4);
@@ -78,11 +75,10 @@ void adaptive_maxpool_2d_bwd(
   const long iH = g_input->Size(2);  // input batch height
   const long iW = g_input->Size(3);  // input batch width
 
-  auto sizes_data = sizes.Data();
   auto go_data = g_output.Data();
   auto gi_data = g_input->Data();
   auto out_idx_data = output_index.Data();
-  caller.Backward(N, C, iH, iW, oH, oW, sizes_data, go_data, out_idx_data,
+  caller.Backward(N, C, iH, iW, oH, oW, go_data, out_idx_data,
                   gi_data);
 }
 

@@ -30,20 +30,20 @@ class AdaptiveMaxpool2dTest(unittest.TestCase):
 
         self._expect_y = torch.Tensor([
             # Expected output 1
-            [[5, 6, 7, 8]],
+            [[9, 10, 11, 12]],
             # Expected output 2
             [[10, 12, 14, 16]]
         ]).resize_(2, 1, 1, 4)
 
         self._expect_dx = torch.Tensor([
             # Input gradient w.r.t. Image 1
-            [[ 1, 2, 3, 4, 0, 0, 0, 0],
-             [ 1, 2, 3, 4, 0, 0, 0, 0],
-             [ 1, 2, 3, 4, 0, 0, 0, 0]],
+            [[  0,  0,  0,  0, 0, 0, 0, 0],
+             [  0,  0,  0,  0, 0, 0, 0, 0],
+             [  3,  6,  9, 12, 0, 0, 0, 0]],
             # Input gradient w.r.t. Image 2
-            [[2, 2, 3, 3, 4, 4, 5, 5],
-             [2, 2, 3, 3, 4, 4, 5, 5],
-             [0, 0, 0, 0, 0, 0, 0, 0]]
+            [[0, 0, 0,  0, 0,  0, 0,  0],
+             [0, 8, 0, 12, 0, 16, 0, 20],
+             [0, 0, 0,  0, 0,  0, 0, 0]]
         ]).resize_(2, 1, 3, 8)
 
 
@@ -64,7 +64,7 @@ class AdaptiveMaxpool2dTest(unittest.TestCase):
     def run_base_test(self):
         x = Variable(self._x, requires_grad=True)
         xs = Variable(self._s, requires_grad=False)
-        y = adaptive_maxpool_2d(x, xs, 1, 4)
+        y = adaptive_maxpool_2d(x, output_sizes=(1, 4), batch_sizes=xs)
         y.backward(self._dy, retain_graph=True)
         np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y)
         np.testing.assert_array_almost_equal(x.grad.data.cpu(), self._expect_dx)

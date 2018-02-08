@@ -70,7 +70,7 @@ void adaptive_maxpool_2d_fwd(
 
 template <typename T, typename Int>
 void adaptive_maxpool_2d_bwd(
-    const Int N, const Int C, const Int inpH, const Int inpW, const Int* sizes,
+    const Int N, const Int C, const Int inpH, const Int inpW,
     const Int outH, const Int outW, const T* grad_output, const Int* out_idx,
     T* grad_input) {
   assert(N > 0 && C > 0 && inpH > 0 && inpW > 0);

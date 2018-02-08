@@ -27,29 +27,29 @@ void nnutils_adaptive_maxpool_2d_fwd_cpu_f64(
     long int h, long int w, THDoubleTensor* output, THLongTensor* index);
 
 void nnutils_adaptive_maxpool_2d_bwd_cpu_u8(
-    const THByteTensor* grad_output, const THLongTensor* sizes,
+    const THByteTensor* grad_output,
     const THLongTensor* index, THByteTensor* grad_input);
 
 void nnutils_adaptive_maxpool_2d_bwd_cpu_s8(
-    const THCharTensor* grad_output, const THLongTensor* sizes,
+    const THCharTensor* grad_output,
     const THLongTensor* index, THCharTensor* grad_input);
 
 void nnutils_adaptive_maxpool_2d_bwd_cpu_s16(
-    const THShortTensor* grad_output, const THLongTensor* sizes,
+    const THShortTensor* grad_output,
     const THLongTensor* index, THShortTensor* grad_input);
 
 void nnutils_adaptive_maxpool_2d_bwd_cpu_s32(
-    const THIntTensor* grad_output, const THLongTensor* sizes,
+    const THIntTensor* grad_output,
     const THLongTensor* index, THIntTensor* grad_input);
 
 void nnutils_adaptive_maxpool_2d_bwd_cpu_s64(
-    const THLongTensor* grad_output, const THLongTensor* sizes,
+    const THLongTensor* grad_output,
     const THLongTensor* index, THLongTensor* grad_input);
 
 void nnutils_adaptive_maxpool_2d_bwd_cpu_f32(
-    const THFloatTensor* grad_output, const THLongTensor* sizes,
+    const THFloatTensor* grad_output,
     const THLongTensor* index, THFloatTensor* grad_input);
 
 void nnutils_adaptive_maxpool_2d_bwd_cpu_f64(
-    const THDoubleTensor* grad_output, const THLongTensor* sizes,
+    const THDoubleTensor* grad_output,
     const THLongTensor* index, THDoubleTensor* grad_input);

@@ -64,7 +64,7 @@ class AdaptiveAvgpool2dTest(unittest.TestCase):
     def run_base_test(self):
         x = Variable(self._x, requires_grad=True)
         xs = Variable(self._s, requires_grad=False)
-        y = adaptive_avgpool_2d(x, xs, 1, 4)
+        y = adaptive_avgpool_2d(x, output_sizes=(1, 4), batch_sizes=xs)
         y.backward(self._dy, retain_graph=True)
         np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y)
         np.testing.assert_array_almost_equal(x.grad.data.cpu(), self._expect_dx)

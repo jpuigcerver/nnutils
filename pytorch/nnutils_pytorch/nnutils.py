@@ -124,7 +124,7 @@ class _AdaptiveAvgpool2d(_FunctionBase):
         grad_input = grad_output.data.new(N, C, ctx.inp_h, ctx.inp_w)
         cls._assert_call(_adap_avgpool_2d_bwd,
                           grad_output, batch_sizes, grad_input)
-        return Variable(grad_input, requires_grad=True), None, None, None
+        return Variable(grad_input), None, None, None
 
 
 _adap_maxpool_2d_fwd = _create_impl_dict(
@@ -138,7 +138,6 @@ class _AdaptiveMaxpool2d(_FunctionBase):
     @classmethod
     def forward(cls, ctx, batch_input, batch_sizes, out_h, out_w):
         assert(batch_input.is_cuda == batch_sizes.is_cuda)
-        ctx.save_for_backward(batch_sizes)
         N, C, inp_h, inp_w = batch_input.size()
         ctx.inp_h = inp_h
         ctx.inp_w = inp_w
@@ -148,17 +147,17 @@ class _AdaptiveMaxpool2d(_FunctionBase):
                          batch_input, batch_sizes, out_h, out_w,
                          batch_output, index)
         ctx.save_for_backward(index)
-        return batch_output
+        return batch_output, index
 
     @classmethod
-    def backward(cls, ctx, grad_output):
-        batch_sizes, index = ctx.saved_tensors
-        assert(grad_output.is_cuda == batch_sizes.is_cuda)
+    def backward(cls, ctx, grad_output, unused_grad_indexes):
+        index, = ctx.saved_tensors
+        assert(grad_output.is_cuda == index.is_cuda)
         N, C, _, _ = grad_output.size()
-        grad_input = grad_output.data.new(N, C, ctx.inp_h, ctx.inp_w)
+        grad_input = grad_output.data.new(N, C, ctx.inp_h, ctx.inp_w).zero_()
         cls._assert_call(_adap_maxpool_2d_bwd,
-                          grad_output, batch_sizes, index, grad_input)
-        return Variable(grad_input, requires_grad=True), None, None, None
+                          grad_output, index, grad_input)
+        return Variable(grad_input), None, None, None
 
 
 def mask_image_from_size(batch_input, batch_sizes=None, mask_value=0,
@@ -166,10 +165,28 @@ def mask_image_from_size(batch_input, batch_sizes=None, mask_value=0,
     return _MaskImageFromSize.apply(batch_input, batch_sizes, mask_value,
                                     inplace)
 
-def adaptive_avgpool_2d(batch_input, batch_sizes, out_h, out_w):
-    return _AdaptiveAvgpool2d.apply(batch_input, batch_sizes, out_h, out_w)
+def adaptive_avgpool_2d(batch_input, output_sizes, batch_sizes=None):
+    if batch_sizes is None:
+        return torch.nn.functional.adaptive_avg_pool2d(
+            batch_input, output_sizes)
+    else:
+        if isinstance(output_sizes, (list, tuple)):
+            out_h, out_w = output_sizes
+        else:
+            out_h, out_w = output_sizes, output_sizes
+        return _AdaptiveAvgpool2d.apply(batch_input, batch_sizes, out_h, out_w)
 
-def adaptive_maxpool_2d(batch_input, batch_sizes, out_h, out_w):
-    return _AdaptiveMaxpool2d.apply(batch_input, batch_sizes, out_h, out_w)
+def adaptive_maxpool_2d(batch_input, output_sizes, batch_sizes=None,
+                        return_indices=False):
+    if batch_sizes is None:
+        return torch.nn.functional.adaptive_max_pool2d(
+            batch_input, output_sizes, return_indices)
+    else:
+        if isinstance(output_sizes, (list, tuple)):
+            out_h, out_w = output_sizes
+        else:
+            out_h, out_w = output_sizes, output_sizes
+        ret = _AdaptiveMaxpool2d.apply(batch_input, batch_sizes, out_h, out_w)
+        return ret if return_indices else ret[0]
 
 __all__ = [mask_image_from_size, adaptive_avgpool_2d, adaptive_maxpool_2d]

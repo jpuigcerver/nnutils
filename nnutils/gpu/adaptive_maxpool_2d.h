@@ -34,7 +34,7 @@ template <typename T, typename Int>
 __global__
 void adaptive_maxpool_2d_fwd(
     const Int N, const Int C, const Int inpH, const Int inpW, const Int* sizes,
-    const Int outH, const int outW, const T* inp, T* out, Int* out_idx) {
+    const Int outH, const Int outW, const T* inp, T* out, Int* out_idx) {
   __shared__ Int _sizes[2];
 
   for (Int n = thGz; n < N; n += NTGz) {
@@ -56,21 +56,20 @@ void adaptive_maxpool_2d_fwd(
         const Int i1 = end_index<Int>(y, outH, h);
         const Int j0 = start_index<Int>(x, outW, w);
         const Int j1 = end_index<Int>(x, outW, w);
-        const Int kh = (i1 - i0), kw = (j1 - j0);
 
-        T val = pixv(inp_nc, inpW, i0, j0);
+        T val = pixv<T, Int>(inp_nc, inpW, i0, j0);
         Int idx = i0 * inpW + j0;
         for (Int i = i0; i < i1; ++i) {
           for (Int j = j0; j < j1; ++j) {
-            const T& v = pixv(inp_nc, inpW, i, j);
+            const T& v = pixv<T, Int>(inp_nc, inpW, i, j);
             if (v > val) {
               val = v;
               idx = i * inpW + j;
             }
           }
         }
-        pixv(out_nc, outW, y, x) = val;
-        if (out_idx) { pixv(out_idx_nc, outW, y, x) = idx; }
+        pixv<T, Int>(out_nc, outW, y, x) = val;
+        if (out_idx) { pixv<Int, Int>(out_idx_nc, outW, y, x) = idx; }
       }
     }
   }
@@ -79,19 +78,10 @@ void adaptive_maxpool_2d_fwd(
 template <typename T, typename Int>
 __global__
 void adaptive_maxpool_2d_bwd(
-    const Int N, const Int C, const Int inpH, const Int inpW, const Int* sizes,
-    const Int outH, const int outW, const T* grad_output, const Int* out_idx,
+    const Int N, const Int C, const Int inpH, const Int inpW,
+    const Int outH, const Int outW, const T* grad_output, const Int* out_idx,
     T* grad_input) {
-  __shared__ Int _sizes[2];
-
   for (Int n = thGz; n < N; n += NTGz) {
-    // Copy image size to shared memory to avoid repeated access to global mem.
-    if (thBx == 0 && thBy == 0) {
-      _sizes[0] = sizes ? sizes[2 * n    ] : inpH;
-      _sizes[1] = sizes ? sizes[2 * n + 1] : inpW;
-    }
-    __syncthreads();
-    const Int h = _sizes[0], w = _sizes[1];  // original height, width
     for (Int c = thGy; c < C; c += NTGy) {
       // Pointer to the output gradients of the current image and channel
       const T* g_out_nc =
@@ -99,14 +89,16 @@ void adaptive_maxpool_2d_bwd(
       // Pointer to the input gradients of the current image and channel
       T* g_inp_nc =
           grad_input + n * C * inpH * inpW + c * inpH * inpW;
+      // Pointer to the output index of the current image and channel.
+      const Int * out_idx_nc =
+          out_idx + n * C * outH * outW + c * outH * outW;
 
       for (Int i = thGx; i < outH * outW; i += NTGx) {
         const Int y = i / outW, x = i % outW;
         // Index of the input pixel that was selected as the maximum.
-        const Int idx =
-            pixv(out_idx + n * C * outH * outW + c * outH * outW, y * x);
+        const Int idx = pixv<Int, Int>(out_idx_nc, outW, y, x);
         // Update input gradients for the selected input pixel.
-        g_inp_nc[idx] += pixv(g_out_nc, outW, y, x);
+        g_inp_nc[idx] += pixv<T, Int>(g_out_nc, outW, y, x);
       }
     }
   }
@@ -123,12 +115,21 @@ void adaptive_maxpool_2d_fwd(
   assert(outH > 0 && outW > 0);
   assert(inp != nullptr);
   assert(out != nullptr);
-
+  const dim3 block_size(512, 1, 1);
+  const dim3 grid_size(NUM_BLOCKS(outH * outW, 512),
+                       NUM_BLOCKS(C, 1),
+                       NUM_BLOCKS(N, 1));
+  internal::adaptive_maxpool_2d_fwd<T, Int>
+      <<<grid_size, block_size, 0, stream>>>(
+          N, C, inpH, inpW, sizes, outH, outW, inp, out, out_idx);
+  if (stream == nullptr) {
+    CHECK_LAST_CUDA_CALL();
+  }
 }
 
 template <typename T, typename Int>
 void adaptive_maxpool_2d_bwd(
-    const Int N, const Int C, const Int inpH, const Int inpW, const Int* sizes,
+    const Int N, const Int C, const Int inpH, const Int inpW,
     const Int outH, const int outW, const T* grad_output, const Int* out_idx,
     T* grad_input, cudaStream_t stream = nullptr) {
   assert(N > 0 && C > 0 && inpH > 0 && inpW > 0);
@@ -136,7 +137,17 @@ void adaptive_maxpool_2d_bwd(
   assert(grad_output != nullptr);
   assert(out_idx != nullptr);
   assert(grad_input != nullptr);
-
+  const dim3 block_size(512, 1, 1);
+  const dim3 grid_size(NUM_BLOCKS(outH * outW, 512),
+                       NUM_BLOCKS(C, 1),
+                       NUM_BLOCKS(N, 1));
+  internal::adaptive_maxpool_2d_bwd<T, Int>
+      <<<grid_size, block_size, 0, stream>>>(
+          N, C, inpH, inpW, outH, outW, grad_output, out_idx,
+          grad_input);
+  if (stream == nullptr) {
+    CHECK_LAST_CUDA_CALL();
+  }
 }
 
 }  // namespace gpu
