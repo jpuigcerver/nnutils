@@ -1,7 +1,7 @@
 import torch
 from torch.autograd import Function, Variable
 from torch.utils.ffi import _wrap_function
-from ._nnutils import lib as _lib, ffi as _ffi
+from nnutils_pytorch._nnutils import lib as _lib, ffi as _ffi
 
 _TENSOR_INT_DTYPE = ['u8', 's8', 's16', 's32', 's64']
 _TENSOR_INT_SUFFIX = [
