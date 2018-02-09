@@ -1,0 +1,23 @@
+language: python
+
+os:
+  - linux
+  - osx
+
+python:
+  - "2.7"
+  - "3.5"
+  - "3.6"
+
+before_install:
+  - travis/install_packages.sh
+  - travis/install_pytorch.sh
+
+script:
+  - travis/build.sh
+  - travis/test.sh
+
+notifications:
+  email:
+    on_success: change
+    on_failure: always
