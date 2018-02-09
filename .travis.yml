@@ -18,12 +18,13 @@ addons:
       - ubuntu-toolchain-r-test
     packages:
       - g++-4.9
+
 env:
   - GTEST_ROOT="$HOME/.local"
+  - CC=gcc-4.9 CXX=g++-4.9
+  - CC=clang CXX=clang++
 
 before_install:
-  - if [ "$CC" = gcc ]; then export CC=gcc-4.9; fi;
-  - if [ "$CXX" = g++ ]; then export CXX=g++-4.9; fi;
   - travis/install_packages.sh
   - travis/install_pytorch.sh
   - travis/install_gtest.sh
