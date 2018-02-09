@@ -2,16 +2,19 @@ language: python
 
 os:
   - linux
-  - osx
 
 python:
   - "2.7"
   - "3.5"
   - "3.6"
 
+env:
+  - GTEST_ROOT="$HOME/.local"
+
 before_install:
   - travis/install_packages.sh
   - travis/install_pytorch.sh
+  - travis/install_gtest.sh
 
 script:
   - travis/build.sh
