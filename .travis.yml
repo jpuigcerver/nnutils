@@ -20,6 +20,9 @@ script:
   - travis/build.sh
   - travis/test.sh
 
+after_failure:
+  - cat build/Testing/Temporary/LastTest.log
+
 notifications:
   email:
     on_success: change
