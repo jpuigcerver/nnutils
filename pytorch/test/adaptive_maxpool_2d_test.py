@@ -3,7 +3,7 @@ import torch
 import unittest
 
 from torch.autograd import Variable
-from nnutils_pytorch import adaptive_maxpool_2d
+from nnutils_pytorch import is_cuda_available, adaptive_maxpool_2d
 
 class AdaptiveMaxpool2dTest(unittest.TestCase):
     def setUp(self):
@@ -168,7 +168,7 @@ for ttype, dtype in zip(['torch.FloatTensor', 'torch.DoubleTensor'],
     setattr(AdaptiveMaxpool2dTest,
             'test_fixed_width_cpu_%s' % dtype,
             lambda self: self.run_fixed_width(False, ttype))
-    if torch.cuda.is_available():
+    if is_cuda_available():
         setattr(AdaptiveMaxpool2dTest,
                 'test_gpu_%s' % dtype,
                 lambda self: self.run_base(True, ttype))

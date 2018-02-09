@@ -39,6 +39,7 @@ def _create_impl_dict(loc, func_prefix, types):
 # Import symbols from the dynamic library
 _import_symbols(locals())
 
+
 class _FunctionBase(Function):
     @classmethod
     def _assert_call(cls, func_dict, *args, **kwargs):
@@ -293,4 +294,12 @@ def adaptive_maxpool_2d(batch_input, output_sizes, batch_sizes=None,
         ret = _AdaptiveMaxpool2d.apply(batch_input, batch_sizes, out_h, out_w)
         return ret if return_indices else ret[0]
 
-__all__ = [mask_image_from_size, adaptive_avgpool_2d, adaptive_maxpool_2d]
+
+_gpu_fn = locals().get('nnutils_mask_image_from_size_gpu_f32', None)
+def is_cuda_available():
+    return (torch.cuda.is_available() and _gpu_fn is not None)
+
+__all__ = [is_cuda_available,
+           mask_image_from_size,
+           adaptive_avgpool_2d,
+           adaptive_maxpool_2d]

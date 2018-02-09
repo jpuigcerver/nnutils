@@ -7,6 +7,11 @@ IF(PYTORCH_FOUND AND WITH_PYTORCH AND PYTHONINTERP_FOUND)
   SET(_EXTERNAL_LIBS)
   SET(_EXTERNAL_DIRS)
 
+  IF(PYTORCH_CUDA AND NOT WITH_CUDA)
+    MESSAGE(WARNING "Your PyTorch installation supports CUDA, but "
+      "nnutils_pytorch won't. Are you sure about this?")
+  ENDIF(PYTORCH_CUDA AND NOT WITH_CUDA)
+
   # Dependency with the wrapper code.
   LIST(APPEND _EXTERNAL_LIBS
     ${CMAKE_CURRENT_BINARY_DIR}/src/cpu/libpytorch_cpu_.a)
@@ -31,6 +36,12 @@ IF(PYTORCH_FOUND AND WITH_PYTORCH AND PYTHONINTERP_FOUND)
     LIST(APPEND _EXTERNAL_DIRS "${_AUX_DIRS}")
   ENDIF(CUDA_FOUND AND WITH_CUDA)
 
+  # A single target that compiles both pytorch_cpu_ and pytorch_gpu_
+  ADD_CUSTOM_TARGET(pytorch_ ALL DEPENDS pytorch_cpu_)
+  IF(CUDA_FOUND AND WITH_CUDA)
+    ADD_DEPENDENCIES(pytorch_ pytorch_gpu_)
+  ENDIF(CUDA_FOUND AND WITH_CUDA)
+
   # Prepare setup.py
   SET(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in")
   SET(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
@@ -42,9 +53,7 @@ IF(PYTORCH_FOUND AND WITH_PYTORCH AND PYTHONINTERP_FOUND)
     COMMAND ${CMAKE_COMMAND} -E touch "${OUTPUT}"
     DEPENDS nnutils_pytorch/__init__.py
     DEPENDS nnutils_pytorch/nnutils.py
-    DEPENDS pytorch_cpu_
-    # This will probably cause troubles if cuda implementations are not avail.
-    DEPENDS pytorch_gpu_
+    DEPENDS pytorch_
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
   # Custom target to run setup.py build during make
   ADD_CUSTOM_TARGET(nnutils_pytorch ALL DEPENDS "${OUTPUT}")

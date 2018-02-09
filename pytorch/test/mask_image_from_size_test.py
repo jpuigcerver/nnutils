@@ -3,7 +3,7 @@ import torch
 import unittest
 
 from torch.autograd import Variable
-from nnutils_pytorch import mask_image_from_size
+from nnutils_pytorch import is_cuda_available, mask_image_from_size
 
 class MaskImageFromSizeTest(unittest.TestCase):
     def setUp(self):
@@ -54,7 +54,7 @@ for ttype, dtype in zip(['torch.ShortTensor',
     setattr(MaskImageFromSizeTest,
             'test_cpu_%s' % dtype,
             lambda self: self.run_base(False, ttype))
-    if torch.cuda.is_available():
+    if is_cuda_available():
         setattr(MaskImageFromSizeTest,
                 'test_gpu_%s' % dtype,
                 lambda self: self.run_base(True, ttype))
