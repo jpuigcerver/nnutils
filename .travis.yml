@@ -37,6 +37,8 @@ script:
 
 after_failure:
   - cat build/Testing/Temporary/LastTest.log
+  - find build/pytorch/inst -name "*.so" | xargs -n1 nm -C
+  - find build/pytorch/inst -name "*.so" | xargs -n1 ldd
 
 notifications:
   email:
