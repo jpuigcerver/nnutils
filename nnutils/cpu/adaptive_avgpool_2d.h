@@ -2,6 +2,7 @@
 #ifndef NNUTILS_CPU_ADAPTIVE_AVGPOOL_2D_H_
 #define NNUTILS_CPU_ADAPTIVE_AVGPOOL_2D_H_
 
+#include <nnutils/adaptive_pool.h>
 #include <nnutils/utils.h>
 
 #include <cassert>
@@ -11,53 +12,51 @@ namespace nnutils {
 namespace cpu {
 
 using nnutils::internal::pixv;
-
-namespace {
-template <typename Int>
-__host__ __device__
-inline Int start_index(Int a, Int b, Int c) {
-  return static_cast<Int>(floor(static_cast<float>(a * c) / b));
-}
-
-template <typename Int>
-__host__ __device__
-inline Int end_index(Int a, Int b, Int c) {
-  return static_cast<Int>(ceil(static_cast<float>((a + 1) * c) / b));
-}
-}
+using nnutils::internal::start_index;
+using nnutils::internal::end_index;
 
 template <typename T, typename Int>
 void adaptive_avgpool_2d_fwd(
-    const Int N, const Int C, const Int inpH, const Int inpW, const Int* sizes,
-    const Int outH, const Int outW, const T* inp, T* out) {
-  assert(N > 0 && C > 0 && inpH > 0 && inpW > 0);
-  assert(outH > 0 && outW > 0);
+    const Int N, const Int C,
+    const Int inp_H, const Int inp_W, const Int out_H, const Int out_W,
+    const Int* inp_sizes, const Int* out_sizes, const T* inp, T* out) {
+  assert(N > 0 && C > 0 && inp_H > 0 && inp_W > 0);
+  assert(out_H > 0 && out_W > 0);
   assert(inp != nullptr);
   assert(out != nullptr);
 
   #pragma omp parallel for collapse(4)
   for (Int n = 0; n < N; ++n) {
     for (Int c = 0; c < C; ++c) {
-      for (Int y = 0; y < outH; ++y) {
-        for (Int x  = 0; x < outW; ++x) {
-          const Int h = sizes ? sizes[2 * n    ] : inpH;  // original height
-          const Int w = sizes ? sizes[2 * n + 1] : inpW;  // original width
-          const T* inp_nc = inp + n * C * inpH * inpW + c * inpH * inpW;
-          T* out_nc = out + n * C * outH * outW + c * outH * outW;
+      for (Int y = 0; y < out_H; ++y) {
+        for (Int x  = 0; x < out_W; ++x) {
+          // Input height and width.
+          const Int hi = inp_sizes ? inp_sizes[2 * n    ] : inp_H;
+          const Int wi = inp_sizes ? inp_sizes[2 * n + 1] : inp_W;
+          // Output height and width.
+          const Int ho = out_sizes ? out_sizes[2 * n    ] : out_H;
+          const Int wo = out_sizes ? out_sizes[2 * n + 1] : out_W;
+          // Pointers to the input/output data for the current sample/channel.
+          const T* input_nc = inp + n * C * inp_H * inp_W + c * inp_H * inp_W;
+          T* output_nc = out + n * C * out_H * out_W + c * out_H * out_W;
 
-          const Int i0 = start_index(y, outH, h);
-          const Int i1 = end_index(y, outH, h);
-          const Int j0 = start_index(x, outW, w);
-          const Int j1 = end_index(x, outW, w);
-          const Int kh = (i1 - i0), kw = (j1 - j0);
+          if (y < ho && x < wo) {
+            const Int i0 = start_index(y, ho, hi);
+            const Int i1 = end_index(y, ho, hi);
+            const Int j0 = start_index(x, wo, wi);
+            const Int j1 = end_index(x, wo, wi);
+            const Int kh = (i1 - i0), kw = (j1 - j0);
 
-          T val = 0;
-          for (Int i = i0; i < i1; ++i) {
-            for (Int j = j0; j < j1; ++j) {
-              val += pixv(inp_nc, inpW, i, j);
+            T val = 0;
+            for (Int i = i0; i < i1; ++i) {
+              for (Int j = j0; j < j1; ++j) {
+                val += pixv(input_nc, inp_W, i, j);
+              }
             }
+            pixv(output_nc, out_W, y, x) = val / (kh * kw);
+          } else {
+            pixv(output_nc, out_W, y, x) = 0;
           }
-          pixv(out_nc, outW, y, x) = val / (kh * kw);
         }
       }
     }
@@ -66,33 +65,46 @@ void adaptive_avgpool_2d_fwd(
 
 template <typename T, typename Int>
 void adaptive_avgpool_2d_bwd(
-    const Int N, const Int C, const Int inpH, const Int inpW, const Int* sizes,
-    const Int outH, const Int outW, const T* gradOut, T* gradInp) {
-  assert(N > 0 && C > 0 && inpH > 0 && inpW > 0);
-  assert(outH > 0 && outW > 0);
-  assert(gradOut != nullptr);
-  assert(gradInp != nullptr);
+    const Int N, const Int C,
+    const Int inp_H, const Int inp_W, const Int out_H, const Int out_W,
+    const Int* inp_sizes, const Int* out_sizes,
+    const T* grad_output, T* grad_input) {
+  assert(N > 0 && C > 0 && inp_H > 0 && inp_W > 0);
+  assert(out_H > 0 && out_W > 0);
+  assert(grad_output != nullptr);
+  assert(grad_input != nullptr);
 
   #pragma omp parallel for collapse(4)
   for (Int n = 0; n < N; ++n) {
     for (Int c = 0; c < C; ++c) {
-      for (Int y = 0; y < outH; ++y) {
-        for (Int x  = 0; x < outW; ++x) {
-          const Int h = sizes ? sizes[2 * n    ] : inpH;  // original height
-          const Int w = sizes ? sizes[2 * n + 1] : inpW;  // original width
-          const Int inp_offset = n * C * inpH * inpW + c * inpH * inpW;
-          const Int out_offset = n * C * outH * outW + c * outH * outW;
+      for (Int y = 0; y < out_H; ++y) {
+        for (Int x  = 0; x < out_W; ++x) {
+          // Input height and width.
+          const Int hi = inp_sizes ? inp_sizes[2 * n    ] : inp_H;
+          const Int wi = inp_sizes ? inp_sizes[2 * n + 1] : inp_W;
+          // Output height and width.
+          const Int ho = out_sizes ? out_sizes[2 * n    ] : out_H;
+          const Int wo = out_sizes ? out_sizes[2 * n + 1] : out_W;
 
-          const Int i0 = start_index(y, outH, h);
-          const Int i1 = end_index(y, outH, h);
-          const Int j0 = start_index(x, outW, w);
-          const Int j1 = end_index(x, outW, w);
-          const Int kh = (i1 - i0), kw = (j1 - j0);
+          if (y < ho && x < wo) {
+            // Pointers to the input/output gradients for the current
+            // sample and channel.
+            T* grad_input_nc =
+                grad_input + n * C * inp_H * inp_W + c * inp_H * inp_W;
+            const T* grad_output_nc =
+                grad_output + n * C * out_H * out_W + c * out_H * out_W;
 
-          const T val = pixv(gradOut + out_offset, outW, y, x) / (kh * kw);
-          for (Int i = i0; i < i1; ++i) {
-            for (Int j = j0; j < j1; ++j) {
-              pixv(gradInp + inp_offset, inpW, i, j) += val;
+            const Int i0 = start_index(y, ho, hi);
+            const Int i1 = end_index(y, ho, hi);
+            const Int j0 = start_index(x, wo, wi);
+            const Int j1 = end_index(x, wo, wi);
+            const Int kh = (i1 - i0), kw = (j1 - j0);
+
+            const T val = pixv(grad_output_nc, out_W, y, x) / (kh * kw);
+            for (Int i = i0; i < i1; ++i) {
+              for (Int j = j0; j < j1; ++j) {
+                pixv(grad_input_nc, inp_W, i, j) += val;
+              }
             }
           }
         }

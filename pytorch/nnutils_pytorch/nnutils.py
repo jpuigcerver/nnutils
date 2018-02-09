@@ -102,18 +102,45 @@ _adap_avgpool_2d_bwd = _create_impl_dict(
     locals(), 'nnutils_adaptive_avgpool_2d_bwd',
     zip(_TENSOR_REAL_SUFFIX, _TENSOR_REAL_DTYPE))
 
+_adap_avgpool_2d_generic_fwd = _create_impl_dict(
+    locals(), 'nnutils_adaptive_avgpool_2d_generic_fwd',
+    zip(_TENSOR_REAL_SUFFIX, _TENSOR_REAL_DTYPE))
+_adap_avgpool_2d_generic_bwd = _create_impl_dict(
+    locals(), 'nnutils_adaptive_avgpool_2d_generic_bwd',
+    zip(_TENSOR_REAL_SUFFIX, _TENSOR_REAL_DTYPE))
+
 class _AdaptiveAvgpool2d(_FunctionBase):
     @classmethod
     def forward(cls, ctx, batch_input, batch_sizes, out_h, out_w):
+        assert(out_h is not None or out_w is not None)
         assert(batch_input.is_cuda == batch_sizes.is_cuda)
         ctx.save_for_backward(batch_sizes)
         N, C, inp_h, inp_w = batch_input.size()
         ctx.inp_h = inp_h
         ctx.inp_w = inp_w
-        batch_output = batch_input.new(N, C, out_h, out_w)
-        cls._assert_call(_adap_avgpool_2d_fwd,
-                         batch_input, batch_sizes, out_h, out_w,
-                         batch_output)
+        ctx.out_h = out_h
+        ctx.out_w = out_w
+
+        if out_h is None or out_w is None:
+            output_sizes = batch_sizes.clone()
+            if out_h is not None:
+                output_sizes[:, 0] = out_h
+            if out_w is not None:
+                output_sizes[:, 1] = out_w
+            out_h = inp_h if out_h is None else out_h
+            out_w = inp_w if out_w is None else out_w
+
+            batch_output = batch_input.new(N, C, out_h, out_w)
+            cls._assert_call(_adap_avgpool_2d_generic_fwd,
+                             batch_sizes, output_sizes,
+                             batch_input, batch_output,
+                             tensor_type=batch_input.type())
+            ctx.output_sizes = output_sizes
+        else:
+            batch_output = batch_input.new(N, C, out_h, out_w)
+            cls._assert_call(_adap_avgpool_2d_fwd,
+                             batch_sizes, batch_input, batch_output,
+                             tensor_type=batch_input.type())
         return batch_output
 
     @classmethod
@@ -122,8 +149,15 @@ class _AdaptiveAvgpool2d(_FunctionBase):
         assert(grad_output.is_cuda == batch_sizes.is_cuda)
         N, C, _, _ = grad_output.size()
         grad_input = grad_output.data.new(N, C, ctx.inp_h, ctx.inp_w)
-        cls._assert_call(_adap_avgpool_2d_bwd,
-                          grad_output, batch_sizes, grad_input)
+        if ctx.out_h is None or ctx.out_w is None:
+            cls._assert_call(_adap_avgpool_2d_generic_bwd,
+                             batch_sizes, ctx.output_sizes,
+                             grad_output, grad_input,
+                             tensor_type=grad_output.data.type())
+        else:
+            cls._assert_call(_adap_avgpool_2d_bwd,
+                             batch_sizes, grad_output, grad_input,
+                             tensor_type=grad_output.data.type())
         return Variable(grad_input), None, None, None
 
 
@@ -134,18 +168,45 @@ _adap_maxpool_2d_bwd = _create_impl_dict(
     locals(), 'nnutils_adaptive_maxpool_2d_bwd',
     zip(_TENSOR_REAL_SUFFIX, _TENSOR_REAL_DTYPE))
 
+_adap_maxpool_2d_generic_fwd = _create_impl_dict(
+    locals(), 'nnutils_adaptive_maxpool_2d_generic_fwd',
+    zip(_TENSOR_REAL_SUFFIX, _TENSOR_REAL_DTYPE))
+_adap_maxpool_2d_generic_bwd = _create_impl_dict(
+    locals(), 'nnutils_adaptive_maxpool_2d_generic_bwd',
+    zip(_TENSOR_REAL_SUFFIX, _TENSOR_REAL_DTYPE))
+
 class _AdaptiveMaxpool2d(_FunctionBase):
     @classmethod
     def forward(cls, ctx, batch_input, batch_sizes, out_h, out_w):
+        assert(out_h is not None or out_w is not None)
         assert(batch_input.is_cuda == batch_sizes.is_cuda)
         N, C, inp_h, inp_w = batch_input.size()
         ctx.inp_h = inp_h
         ctx.inp_w = inp_w
-        batch_output = batch_input.new(N, C, out_h, out_w)
-        index = batch_sizes.new(N, C, out_h, out_w)
-        cls._assert_call(_adap_maxpool_2d_fwd,
-                         batch_input, batch_sizes, out_h, out_w,
-                         batch_output, index)
+        ctx.out_h = out_h
+        ctx.out_w = out_w
+        if out_h is None or out_w is None:
+            output_sizes = batch_sizes.clone()
+            if out_h is not None:
+                output_sizes[:, 0] = out_h
+            if out_w is not None:
+                output_sizes[:, 1] = out_w
+            out_h = inp_h if out_h is None else out_h
+            out_w = inp_w if out_w is None else out_w
+
+            batch_output = batch_input.new(N, C, out_h, out_w)
+            index = batch_sizes.new(N, C, out_h, out_w)
+            cls._assert_call(_adap_maxpool_2d_generic_fwd,
+                             batch_sizes, output_sizes,
+                             batch_input, batch_output, index,
+                             tensor_type=batch_input.type())
+            ctx.output_sizes = output_sizes
+        else:
+            batch_output = batch_input.new(N, C, out_h, out_w)
+            index = batch_sizes.new(N, C, out_h, out_w)
+            cls._assert_call(_adap_maxpool_2d_fwd,
+                             batch_sizes,  batch_input, batch_output, index,
+                             tensor_type=batch_input.type())
         ctx.save_for_backward(index)
         return batch_output, index
 
@@ -153,10 +214,18 @@ class _AdaptiveMaxpool2d(_FunctionBase):
     def backward(cls, ctx, grad_output, unused_grad_indexes):
         index, = ctx.saved_tensors
         assert(grad_output.is_cuda == index.is_cuda)
+        assert(grad_output.size() == index.size())
         N, C, _, _ = grad_output.size()
         grad_input = grad_output.data.new(N, C, ctx.inp_h, ctx.inp_w).zero_()
-        cls._assert_call(_adap_maxpool_2d_bwd,
-                          grad_output, index, grad_input)
+        if ctx.out_h is None or ctx.out_w is None:
+            cls._assert_call(_adap_maxpool_2d_generic_bwd,
+                             ctx.output_sizes, index,
+                             grad_output, grad_input,
+                             tensor_type=grad_output.data.type())
+        else:
+            cls._assert_call(_adap_maxpool_2d_bwd,
+                             index, grad_output, grad_input,
+                             tensor_type=grad_output.data.type())
         return Variable(grad_input), None, None, None
 
 
@@ -166,6 +235,23 @@ def mask_image_from_size(batch_input, batch_sizes=None, mask_value=0,
                                     inplace)
 
 def adaptive_avgpool_2d(batch_input, output_sizes, batch_sizes=None):
+    r"""Applies a 2D adaptive average pooling over an input signal composed of
+    several input planes.
+
+    You may specify a single dimension for pooling, in that case the other
+    dimension will keep its original size.
+
+    If your input is composed of multiple padded images with different sizes,
+    you can do the pooling taking into account the original size of each image
+    in the batch, by using the batch_sizes argument.
+
+    Args:
+        output_size: the target output size (single integer or
+            double-integer tuple). One of the two integers may be None, to
+            keep the original size in that dimension.
+        batch_sizes: a N x 2 matrix containing the size of each image in the
+            batch. Default: ``None``
+    """
     if batch_sizes is None:
         return torch.nn.functional.adaptive_avg_pool2d(
             batch_input, output_sizes)
@@ -178,6 +264,24 @@ def adaptive_avgpool_2d(batch_input, output_sizes, batch_sizes=None):
 
 def adaptive_maxpool_2d(batch_input, output_sizes, batch_sizes=None,
                         return_indices=False):
+    r"""Applies a 2D adaptive max pooling over an input signal composed of
+    several input planes.
+
+    You may specify a single dimension for pooling, in that case the other
+    dimension will keep its original size.
+
+    If your input is composed of multiple padded images with different sizes,
+    you can do the pooling taking into account the original size of each image
+    in the batch, by using the batch_sizes argument.
+
+    Args:
+        output_size: the target output size (single integer or
+            double-integer tuple). One of the two integers may be None, to
+            keep the original size in that dimension.
+        batch_sizes: a N x 2 matrix containing the size of each image in the
+            batch. Default: ``None``
+        return_indices: whether to return pooling indices. Default: ``False``
+    """
     if batch_sizes is None:
         return torch.nn.functional.adaptive_max_pool2d(
             batch_input, output_sizes, return_indices)
