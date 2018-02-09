@@ -20,9 +20,11 @@ addons:
       - g++-4.9
 
 env:
-  - GTEST_ROOT="$HOME/.local"
-  - CC=gcc-4.9 CXX=g++-4.9
-  - CC=clang CXX=clang++
+  global:
+    - GTEST_ROOT="$HOME/.local"
+  matrix:
+    - CC=gcc-4.9 CXX=g++-4.9
+    - CC=clang CXX=clang++
 
 before_install:
   - travis/install_packages.sh
