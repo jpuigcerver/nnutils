@@ -148,7 +148,7 @@ class _AdaptiveAvgpool2d(_FunctionBase):
         batch_sizes, = ctx.saved_tensors
         assert(grad_output.is_cuda == batch_sizes.is_cuda)
         N, C, _, _ = grad_output.size()
-        grad_input = grad_output.data.new(N, C, ctx.inp_h, ctx.inp_w)
+        grad_input = grad_output.data.new(N, C, ctx.inp_h, ctx.inp_w).zero_()
         if ctx.out_h is None or ctx.out_w is None:
             cls._assert_call(_adap_avgpool_2d_generic_bwd,
                              batch_sizes, ctx.output_sizes,

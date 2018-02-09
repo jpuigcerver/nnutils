@@ -35,7 +35,8 @@ class MaskImageFromSizeTest(unittest.TestCase):
             self._s = self._s.cpu()
             self._dy = self._dy.cpu()
 
-    def run_base_test(self):
+    def run_base(self, cuda, ttype):
+        self.convert(cuda, ttype)
         x = Variable(self._x, requires_grad=True)
         xs = Variable(self._s, requires_grad=False)
         y = mask_image_from_size(x, xs, mask_value=-1)
@@ -43,53 +44,20 @@ class MaskImageFromSizeTest(unittest.TestCase):
         np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y)
         np.testing.assert_array_almost_equal(x.grad.data.cpu(), self._expect_dx)
 
-    def test_cpu_f32(self):
-        self.convert(False, 'torch.FloatTensor')
-        self.run_base_test()
-
-    def test_cpu_f64(self):
-        self.convert(False, 'torch.DoubleTensor')
-        self.run_base_test()
-
-    def test_cpu_s16(self):
-        self.convert(False, 'torch.ShortTensor')
-        self.run_base_test()
-
-    def test_cpu_s32(self):
-        self.convert(False, 'torch.IntTensor')
-        self.run_base_test()
-
-    def test_cpu_s64(self):
-        self.convert(False, 'torch.LongTensor')
-        self.run_base_test()
-
-def test_gpu_f32(self):
-    self.convert(True, 'torch.FloatTensor')
-    self.run_base_test()
-
-def test_gpu_f64(self):
-    self.convert(True, 'torch.DoubleTensor')
-    self.run_base_test()
-
-def test_gpu_s16(self):
-    self.convert(True, 'torch.ShortTensor')
-    self.run_base_test()
-
-def test_gpu_s32(self):
-    self.convert(True, 'torch.IntTensor')
-    self.run_base_test()
-
-def test_gpu_s64(self):
-    self.convert(True, 'torch.LongTensor')
-    self.run_base_test()
-
-# If cuda support is available, register tests to the class.
-if torch.cuda.is_available():
-    MaskImageFromSizeTest.test_gpu_f32 = test_gpu_f32
-    MaskImageFromSizeTest.test_gpu_f64 = test_gpu_f64
-    MaskImageFromSizeTest.test_gpu_s16 = test_gpu_s16
-    MaskImageFromSizeTest.test_gpu_s32 = test_gpu_s32
-    MaskImageFromSizeTest.test_gpu_s64 = test_gpu_s64
+# Register tests for different types, and different devices.
+for ttype, dtype in zip(['torch.ShortTensor',
+                         'torch.IntTensor',
+                         'torch.LongTensor',
+                         'torch.FloatTensor',
+                         'torch.DoubleTensor'],
+                        ['s16', 's32', 's64', 'f32', 'f64']):
+    setattr(MaskImageFromSizeTest,
+            'test_cpu_%s' % dtype,
+            lambda self: self.run_base(False, ttype))
+    if torch.cuda.is_available():
+        setattr(MaskImageFromSizeTest,
+                'test_gpu_%s' % dtype,
+                lambda self: self.run_base(True, ttype))
 
 if __name__ == '__main__':
     unittest.main()
