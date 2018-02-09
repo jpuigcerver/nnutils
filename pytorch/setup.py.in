@@ -1,9 +1,11 @@
 import os
 import re
+import subprocess
 
 from setuptools import setup
 from torch.utils.ffi import create_extension
 
+cwd = os.path.dirname(os.path.abspath(__file__))
 version = '0.0.0'
 if os.getenv('NNUTILS_BUILD_VERSION'):
     version = os.getenv('PYTORCH_BUILD_VERSION')
