@@ -21,7 +21,7 @@ external_libs='${_EXTERNAL_LIBS}'.split(';')
 
 
 extra_objects=[]
-libraries=[]
+libraries=['-lstdc++']
 for lib in external_libs:
     if lib[:2] == '-l':
         libraries.append(lib[2:])
