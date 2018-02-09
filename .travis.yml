@@ -12,19 +12,9 @@ compiler:
   - gcc
   - clang
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-    packages:
-      - g++-4.9
-
 env:
   global:
     - GTEST_ROOT="$HOME/.local"
-  matrix:
-    - CC=gcc-4.9 CXX=g++-4.9
-    - CC=clang CXX=clang++
 
 before_install:
   - travis/install_packages.sh
@@ -37,7 +27,7 @@ script:
 
 after_failure:
   - cat build/Testing/Temporary/LastTest.log
-  - find build/pytorch/inst -name "*.so" | xargs -n1 nm -C
+  - find build/pytorch/inst -name "*.so" | xargs -n1 nm -C | awk '$1 == "U"'
   - find build/pytorch/inst -name "*.so" | xargs -n1 ldd
 
 notifications:
