@@ -46,6 +46,7 @@ have installed correctly the required libraries and tools.
 
 ```bash
 git clone https://github.com/jpuigcerver/nnutils.git
+cd nnutils
 mkdir build
 cd build
 cmake ..
@@ -53,18 +54,23 @@ make
 make install
 ```
 
+By default, it will try to compile the PyTorch bindings with CUDA support and
+install them in the default location for Python libraries in your system.
+
 If you have any problem installing the library, read through the CMake errors
 and warnings. In most cases, the problems are due to installing the tools in
-non-standard directories or using old versions of the libraries.
+non-standard locations or using old versions of them.
 
-You can set many CMake and/or environment variables to aid CMake to detect
-the required software. Some variables that may be helpful:
+You can set many CMake variables to aid it to detect the required software.
+Some helpful variables are:
 
-- CUDA_TOOLKIT_ROOT_DIR: Specify the directory where you installed the
+- `CUDA_TOOLKIT_ROOT_DIR`: Specify the directory where you installed the
   NVIDIA CUDA Toolkit.
-- CUDA_ARCH_LIST: Specify the list of CUDA architectures that should be
+- `CUDA_ARCH_LIST`: Specify the list of CUDA architectures that should be
   supported during the compilation. By default it will use "Auto", which will
   compile _only_ for the architectures supported by your graphic cards.
-- Python_ADDITIONAL_VERSIONS: When you have multiple versions of Python
+- `Python_ADDITIONAL_VERSIONS`: When you have multiple versions of Python
   installed in your system, you can choose to use a specific one (e.g. 3.5)
   with this variable.
+- `PYTORCH_SETUP_PREFIX`: Prefix location to install the PyTorch bindings
+  (e.g. /home/jpuigcerver/.local).
