@@ -1,3 +1,70 @@
 # nnutils
 
 [![Build Status](https://travis-ci.org/jpuigcerver/nnutils.svg?branch=master)](https://travis-ci.org/jpuigcerver/nnutils)
+
+Implementation of different neural network-related utilities for
+CPUs and GPUs (CUDA).
+
+So far, most of the utils are related to my need of working with images of
+different sizes grouped into batches with padding.
+
+## Included utils
+
+- Masking images by size
+
+If you are grouping images of different sizes into batches padded with zeros,
+you may need to mask the output/input tensors after/before some layers.
+This layer is very handy in these cases.
+
+- Adaptive pooling
+
+Adaptive pooling layers included in several packages like Torch or PyTorch
+assume that all images in the batch have the same size. My implementation
+takes into account the size of each individual image within the batch to
+apply the adaptive pooling. Current layers include: Average and maximum
+adaptive pooling.
+
+## Requirements
+
+### Minimum:
+- C++11 compiler (tested with GCC 4.8.2, 5.4.0, Clang 3.5.0).
+- [CMake 3.0](https://cmake.org/).
+
+### Recommended:
+- For GPU support: [CUDA Toolkit](https://developer.nvidia.com/cuda-zone).
+- For running tests: [Google Test](https://github.com/google/googletest).
+
+### PyTorch bindings:
+- [PyTorch](http://pytorch.org/) (tested with version 0.3.0).
+
+## Installation
+
+### From sources
+
+The installation process should be pretty straightforward assuming that you
+have installed correctly the required libraries and tools.
+
+```bash
+git clone https://github.com/jpuigcerver/nnutils.git
+mkdir build
+cd build
+cmake ..
+make
+make install
+```
+
+If you have any problem installing the library, read through the CMake errors
+and warnings. In most cases, the problems are due to installing the tools in
+non-standard directories or using old versions of the libraries.
+
+You can set many CMake and/or environment variables to aid CMake to detect
+the required software. Some variables that may be helpful:
+
+- CUDA_TOOLKIT_ROOT_DIR: Specify the directory where you installed the
+  NVIDIA CUDA Toolkit.
+- CUDA_ARCH_LIST: Specify the list of CUDA architectures that should be
+  supported during the compilation. By default it will use "Auto", which will
+  compile _only_ for the architectures supported by your graphic cards.
+- Python_ADDITIONAL_VERSIONS: When you have multiple versions of Python
+  installed in your system, you can choose to use a specific one (e.g. 3.5)
+  with this variable.
