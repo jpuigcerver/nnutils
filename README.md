@@ -53,6 +53,11 @@ the commit from which the wheel was built.
 | CUDA 8.0 | | | |
 | CUDA 9.0 | | | |
 
+For instance, to install the CPU-only version for Python 3.5:
+```bash
+pip3 install https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.0.0+28e1727-cp35-cp35m-linux_x86_64.whl
+```
+
 ### From sources
 
 The installation process should be pretty straightforward assuming that you
