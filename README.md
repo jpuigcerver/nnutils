@@ -39,6 +39,20 @@ adaptive pooling.
 
 ## Installation
 
+### PyTorch wrappers with pip
+
+The easiest way of using nnutils with PyTorch is using pip. I have 
+precompiled the tool for Linux using different version of Python
+and supporting different devices. The value in each cell corresponds to 
+the commit from which the wheel was built.
+
+|          | Python 2.7 | Python 3.5 | Python 3.6 |
+|----------|:----------:|:----------:|:----------:|
+| CPU-only | [28e1727](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.0.0+28e1727-cp27-cp27mu-linux_x86_64.whl) | [28e1727](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.0.0+28e1727-cp35-cp35m-linux_x86_64.whl) | [28e1727](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.0.0+28e1727-cp36-cp36m-linux_x86_64.whl) |
+| CUDA 7.5 | | | |
+| CUDA 8.0 | | | |
+| CUDA 9.0 | | | |
+
 ### From sources
 
 The installation process should be pretty straightforward assuming that you
