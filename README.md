@@ -39,7 +39,7 @@ adaptive pooling.
 
 ## Installation
 
-### PyTorch wrappers with pip
+### PyTorch bindings with pip
 
 The easiest way of using nnutils with PyTorch is using pip. I have 
 precompiled the tool for Linux using different version of Python
