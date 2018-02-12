@@ -48,15 +48,24 @@ the commit from which the wheel was built.
 
 |          | Python 2.7 | Python 3.5 | Python 3.6 |
 |----------|:----------:|:----------:|:----------:|
-| CPU-only | [28e1727](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.0.0+28e1727-cp27-cp27mu-linux_x86_64.whl) | [28e1727](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.0.0+28e1727-cp35-cp35m-linux_x86_64.whl) | [28e1727](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.0.0+28e1727-cp36-cp36m-linux_x86_64.whl) |
-| CUDA 7.5 | | | |
-| CUDA 8.0 | | | |
-| CUDA 9.0 | | | |
+| CPU-only | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.1.0+fade816-cp27-cp27mu-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.1.0+fade816-cp35-cp35m-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.1.0+fade816-cp36-cp36m-linux_x86_64.whl) |
+| CUDA 7.5 | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu75/nnutils_pytorch_cu75-0.1.0+fade816-cp27-cp27mu-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu75/nnutils_pytorch_cu75-0.1.0+fade816-cp35-cp35m-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu75/nnutils_pytorch_cu75-0.1.0+fade816-cp36-cp36m-linux_x86_64.whl) |
+| CUDA 8.0 | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu80/nnutils_pytorch_cu80-0.1.0+fade816-cp27-cp27mu-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu80/nnutils_pytorch_cu80-0.1.0+fade816-cp35-cp35m-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu80/nnutils_pytorch_cu80-0.1.0+fade816-cp36-cp36m-linux_x86_64.whl) |
+| CUDA 9.0 | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu90/nnutils_pytorch_cu90-0.1.0+fade816-cp27-cp27mu-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu90/nnutils_pytorch_cu90-0.1.0+fade816-cp35-cp35m-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu90/nnutils_pytorch_cu90-0.1.0+fade816-cp36-cp36m-linux_x86_64.whl) |
 
 For instance, to install the CPU-only version for Python 3.5:
 ```bash
 pip3 install https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.0.0+28e1727-cp35-cp35m-linux_x86_64.whl
 ```
+
+Notice that each library was compiled to support only the most common and supported architectures in each CUDA release.
+Choose the compiled version accordingly:
+
+|          | Supported architectures        | Compute Capability                |
+|----------|-------------------------------:|----------------------------------:|
+| CUDA 7.5 | Kepler, Maxwell                | 3.0, 3.5, 5.0, 5.2                |
+| CUDA 8.0 | Kepler, Maxwell, Pascal        | 3.0, 3.5, 5.0, 5.2, 6.0, 6.1      |
+| CUDA 8.0 | Kepler, Maxwell, Pascal, Volta | 3.0, 3.5, 5.0, 5.2, 6.0, 6.1, 7.0 |
 
 ### From sources
 
