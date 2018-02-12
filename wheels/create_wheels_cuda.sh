@@ -57,15 +57,23 @@ for i in $(seq ${#PYTHON_VERSIONS[@]}); do
   python setup.py bdist_wheel;
   cp dist/*.whl /host/tmp/nnutils/wheels/cu${CUDA_VERSION_SHORT};
 
-  python setup.py install;
-  echo <<EOF > test.py
-import nnutils_pytorch
-assert(nnutils_pytorch.is_cuda_available())
-EOF
-  python test.py;
+  # Install nnutils wheel.
+  pip install $(find dist/ -name "*.whl");
+
+  # Move to the tmp directory to ensure that nothing gets imported from the
+  # build directory.
+  cd /tmp;
+
+  # First, ensure that CUDA is available.
+  python -c \
+      "import nnutils_pytorch; assert(nnutils_pytorch.is_cuda_available())";
+
+  # Test installed module.
+  python -m unittest nnutils_pytorch.mask_image_from_size_test;
+  python -m unittest nnutils_pytorch.adaptive_avgpool_2d_test;
+  python -m unittest nnutils_pytorch.adaptive_maxpool_2d_test;
 
   deactivate;
-  cd /;
 done;
 
 CUV=cu${CUDA_VERSION_SHORT};

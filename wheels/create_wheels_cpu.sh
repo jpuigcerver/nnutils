@@ -14,7 +14,7 @@ if [ "$DOCKER" != 1 ]; then
   docker run --rm --log-driver none \
 	 -v /tmp:/host/tmp \
 	 -v ${SOURCE_DIR}:/host/src \
-	 nnutils:latest /create_wheels_cpu.sh;
+	 nnutils:cpu /create_wheels_cpu.sh;
   exit 0;
 fi;
 
@@ -37,6 +37,18 @@ for i in $(seq ${#PYTHON_VERSIONS[@]}); do
   cd pytorch;
   python setup.py bdist_wheel;
   cp dist/*.whl /host/tmp/nnutils/wheels/cpu;
+
+  # Install wheel.
+  pip install $(find dist/ -name "*.whl");
+
+  # Move to the tmp directory to ensure that nothing gets imported from the
+  # build directory.
+  cd /tmp;
+
+  # Test installed module.
+  python -m unittest nnutils_pytorch.mask_image_from_size_test;
+  python -m unittest nnutils_pytorch.adaptive_avgpool_2d_test;
+  python -m unittest nnutils_pytorch.adaptive_maxpool_2d_test;
 
   deactivate;
   cd /;
