@@ -12,16 +12,15 @@ if [ "$DOCKER" != 1 ]; then
 	       nvidia/cuda:9.0-devel);
   for i in $(seq 1 ${#CUDA_VERSIONS[@]}); do
     rm -rf /tmp/nnutils/wheels/cu${CUDA_VERSIONS[i - 1]};
-    mkdir /tmp/nnutils/wheels/cu${CUDA_VERSIONS[i - 1]};
-    docker build --build-arg BASE_IMAGE=${CUDA_IMAGES[i - 1]} \
+    mkdir -p /tmp/nnutils/wheels/cu${CUDA_VERSIONS[i - 1]};
+    nvidia-docker build --build-arg BASE_IMAGE=${CUDA_IMAGES[i - 1]} \
 	   -t nnutils:cu${CUDA_VERSIONS[i - 1]}-base -f Dockerfile .;
-    docker build --build-arg CUDA_VERSION_SHORT=${CUDA_VERSIONS[i - 1]} \
+    nvidia-docker build --build-arg CUDA_VERSION_SHORT=${CUDA_VERSIONS[i - 1]} \
 	   -t nnutils:cu${CUDA_VERSIONS[i - 1]} -f Dockerfile-cuda .;
     docker run --runtime=nvidia --rm --log-driver none \
 	   -v /tmp:/host/tmp \
 	   -v ${SOURCE_DIR}:/host/src \
 	   nnutils:cu${CUDA_VERSIONS[i - 1]} /create_wheels_cuda.sh;
-    exit 0;
   done;
   exit 0;
 fi;
@@ -51,13 +50,19 @@ for i in $(seq ${#PYTHON_VERSIONS[@]}); do
   mkdir /tmp/src/build-py$PYV-cuda;
   cd /tmp/src/build-py$PYV-cuda;
   cmake -DWITH_CUDA=ON \
-	-DCUDA_TOOLKIT_ROOT_DIR="$(dirname $(which nvcc))" \
 	-DCUDA_ARCH_LIST="$CUDA_ARCH_LIST" \
 	-DCMAKE_BUILD_TYPE=RELEASE ..;
   make;
   cd pytorch;
   python setup.py bdist_wheel;
   cp dist/*.whl /host/tmp/nnutils/wheels/cu${CUDA_VERSION_SHORT};
+
+  python setup.py install;
+  echo <<EOF > test.py
+import nnutils_pytorch
+assert(nnutils_pytorch.is_cuda_available())
+EOF
+  python test.py;
 
   deactivate;
   cd /;
