@@ -55,7 +55,7 @@ the commit from which the wheel was built.
 
 For instance, to install the CPU-only version for Python 3.5:
 ```bash
-pip3 install https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.0.0+28e1727-cp35-cp35m-linux_x86_64.whl
+pip3 install https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.1.0+fade816-cp35-cp35m-linux_x86_64.whl
 ```
 
 Notice that each library was compiled to support only the most common and supported architectures in each CUDA release.
@@ -65,7 +65,7 @@ Choose the compiled version accordingly:
 |----------|-------------------------------:|----------------------------------:|
 | CUDA 7.5 | Kepler, Maxwell                | 3.0, 3.5, 5.0, 5.2                |
 | CUDA 8.0 | Kepler, Maxwell, Pascal        | 3.0, 3.5, 5.0, 5.2, 6.0, 6.1      |
-| CUDA 8.0 | Kepler, Maxwell, Pascal, Volta | 3.0, 3.5, 5.0, 5.2, 6.0, 6.1, 7.0 |
+| CUDA 9.0 | Kepler, Maxwell, Pascal, Volta | 3.0, 3.5, 5.0, 5.2, 6.0, 6.1, 7.0 |
 
 ### From sources
 
