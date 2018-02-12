@@ -29,6 +29,8 @@ fi;
 
 # Copy source in the host to a temporal location.
 cp -r /host/src /tmp/src;
+cd /tmp/src;
+git status;
 
 if [ "$CUDA_VERSION_SHORT" = 75 ]; then
   export CUDA_ARCH_LIST="Kepler Maxwell";

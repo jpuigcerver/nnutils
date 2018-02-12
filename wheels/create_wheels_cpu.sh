@@ -22,13 +22,15 @@ fi;
 
 # Copy source in the host to a temporal location.
 cp -r /host/src /tmp/src;
+cd /tmp/src;
+git status;
 
 PYTHON_VERSIONS=(python2.7 python3.5 python3.6);
 PYTHON_NUMBERS=(27 35 36);
 for i in $(seq ${#PYTHON_VERSIONS[@]}); do
   export PYTHON=${PYTHON_VERSIONS[i - 1]}
   export PYV=${PYTHON_NUMBERS[i - 1]};
-  source "py${PYV}-cpu/bin/activate";
+  source "/py${PYV}-cpu/bin/activate";
 
   mkdir /tmp/src/build-py$PYV-cpu;
   cd /tmp/src/build-py$PYV-cpu;
