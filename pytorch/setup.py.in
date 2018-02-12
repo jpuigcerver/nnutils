@@ -14,8 +14,6 @@ PACKAGE_NAME = '${NNUTILS_PYTORCH_PACKAGE}'
 URL = 'https://github.com/jpuigcerver/nnutils'
 AUTHOR = 'Joan Puigcerver'
 AUTHOR_EMAIL = 'joapuipe@gmail.com'
-MANTAINER = AUTHOR
-MANTAINER_EMAIL = AUTHOR_EMAIL
 DESCRIPTION = 'PyTorch bindings of the nnutils library'
 CLASSIFIERS = [
     'Development Status :: 3 - Alpha',
@@ -99,8 +97,6 @@ if __name__ == '__main__':
         ext_modules=[ffi],
         install_requires=['torch', 'cffi'],
         license='MIT',
-        mantainer=MANTAINER,
-        mantainer_email=MANTAINER_EMAIL,
         name=PACKAGE_NAME,
         packages=['nnutils_pytorch'],
         package_dir={'': '${CMAKE_CURRENT_SOURCE_DIR}'},
