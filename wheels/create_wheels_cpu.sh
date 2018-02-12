@@ -5,9 +5,12 @@ SDIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)";
 SOURCE_DIR=$(cd $SDIR/.. && pwd);
 
 if [ "$DOCKER" != 1 ]; then
+  cd $SDIR;
   rm -rf /tmp/nnutils/wheels/cpu;
-  mkdir /tmp/nnutils/wheels/cpu;
-  docker build -t nnutils .;
+  mkdir -p /tmp/nnutils/wheels/cpu;
+  docker build --build-arg BASE_IMAGE=ubuntu:16.04 \
+	 -t nnutils:cpu-base -f Dockerfile .;
+  docker build -t nnutils:cpu -f Dockerfile-cpu .;
   docker run --rm --log-driver none \
 	 -v /tmp:/host/tmp \
 	 -v ${SOURCE_DIR}:/host/src \

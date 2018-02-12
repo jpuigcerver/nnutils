@@ -1,6 +1,7 @@
-FROM ubuntu:16.04
+ARG BASE_IMAGE=ubuntu:16.04
+FROM $BASE_IMAGE
 LABEL maintainer "Joan Puigcerver <joapuipe@gmail.com>"
-LABEL com.nvidia.volumes.needed="nvidia_driver"
+ENV DOCKER=1
 
 # Essential stuff
 RUN apt-get update --fix-missing && \
@@ -13,7 +14,7 @@ RUN apt-get update --fix-missing && \
       libssl-dev \
       software-properties-common
 
-# Python repositories
+# Extra repositories
 RUN add-apt-repository -y ppa:deadsnakes/ppa && \
     apt-get update
 
@@ -46,13 +47,3 @@ RUN apt-get install -y --no-install-recommends \
     python-pip \
     python3-pip \
     virtualenv
-
-# Install PyTorch for CPU-only in different Python versions.
-COPY docker_pytorch_cpu.sh /
-RUN /docker_pytorch_cpu.sh && \
-    rm /docker_pytorch_cpu.sh
-
-# Copy script to create wheels for CPU-only distributions.
-COPY create_wheels_cpu.sh /
-
-ENV DOCKER=1
