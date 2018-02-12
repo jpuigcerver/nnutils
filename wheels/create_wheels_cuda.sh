@@ -47,7 +47,7 @@ PYTHON_NUMBERS=(27 35 36);
 for i in $(seq ${#PYTHON_VERSIONS[@]}); do
   export PYTHON=${PYTHON_VERSIONS[i - 1]}
   export PYV=${PYTHON_NUMBERS[i - 1]};
-  source "py${PYV}-cuda/bin/activate";
+  source "/py${PYV}-cuda/bin/activate";
 
   mkdir /tmp/src/build-py$PYV-cuda;
   cd /tmp/src/build-py$PYV-cuda;
