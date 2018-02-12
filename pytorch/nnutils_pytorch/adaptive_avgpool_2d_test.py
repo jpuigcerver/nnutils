@@ -1,11 +1,13 @@
+from __future__ import absolute_import
+
 import numpy as np
 import torch
 import unittest
 
 from torch.autograd import Variable
-from nnutils_pytorch import is_cuda_available, adaptive_maxpool_2d
+from nnutils_pytorch import is_cuda_available, adaptive_avgpool_2d
 
-class AdaptiveMaxpool2dTest(unittest.TestCase):
+class AdaptiveAvgpool2dTest(unittest.TestCase):
     def setUp(self):
         self._s = torch.LongTensor([[3, 4],
                                     [2, 8]])
@@ -30,9 +32,9 @@ class AdaptiveMaxpool2dTest(unittest.TestCase):
 
         self._dy_fixed_height = torch.Tensor([
             # Output gradient w.r.t. Image 1
-            [[2, 4, 6, 8, 0,  0,  0,  0]],
+            [[3, 6,  9, 12,  0,  0,  0,  0]],
             # Output gradient w.r.t. Image 2
-            [[1, 3, 5, 7, 9, 11, 13, 15]],
+            [[6, 8, 10, 12, 14, 16, 18, 20]],
         ]).resize_(2, 1, 1, 8)
 
         self._dy_fixed_width = torch.Tensor([
@@ -41,66 +43,66 @@ class AdaptiveMaxpool2dTest(unittest.TestCase):
              [ 6,  8],
              [10, 12]],
             # Output gradient w.r.t. Image 2
-            [[1, 3],
-             [5, 7],
-             [0, 0]],
+            [[ 4, 8],
+             [12, 16],
+             [ 0, 0]],
         ]).resize_(2, 1, 3, 2)
 
         self._expect_y = torch.Tensor([
             # Expected output 1
-            [[9, 10, 11, 12]],
+            [[5, 6, 7, 8]],
             # Expected output 2
-            [[10, 12, 14, 16]]
+            [[5.5, 7.5, 9.5, 11.5]]
         ]).resize_(2, 1, 1, 4)
 
         self._expect_y_fixed_height = torch.Tensor([
             # Expected output 1
-            [[9, 10, 11, 12, 0, 0, 0, 0]],
+            [[5, 6, 7, 8, 0, 0, 0, 0]],
             # Expected output 2
-            [[9, 10, 11, 12, 13, 14, 15, 16]],
+            [[5, 6, 7, 8, 9, 10, 11, 12]],
         ]).resize_(2, 1, 1, 8)
 
         self._expect_y_fixed_width = torch.Tensor([
             # Expected output 1
-            [[ 2, 4],
-             [ 6,  8],
-             [10, 12]],
+            [[ 1.5,  3.5],
+             [ 5.5,  7.5],
+             [ 9.5, 11.5]],
             # Expected output 2
-            [[ 4,  8],
-             [12, 16],
+            [[ 2.5,  6.5],
+             [10.5, 14.5],
              [ 0,  0]],
         ]).resize_(2, 1, 3, 2)
 
         self._expect_dx = torch.Tensor([
             # Input gradient w.r.t. Image 1
-            [[  0,  0,  0,  0, 0, 0, 0, 0],
-             [  0,  0,  0,  0, 0, 0, 0, 0],
-             [  3,  6,  9, 12, 0, 0, 0, 0]],
+            [[ 1, 2, 3, 4, 0, 0, 0, 0],
+             [ 1, 2, 3, 4, 0, 0, 0, 0],
+             [ 1, 2, 3, 4, 0, 0, 0, 0]],
             # Input gradient w.r.t. Image 2
-            [[0, 0, 0,  0, 0,  0, 0,  0],
-             [0, 8, 0, 12, 0, 16, 0, 20],
-             [0, 0, 0,  0, 0,  0, 0, 0]]
+            [[2, 2, 3, 3, 4, 4, 5, 5],
+             [2, 2, 3, 3, 4, 4, 5, 5],
+             [0, 0, 0, 0, 0, 0, 0, 0]]
         ]).resize_(2, 1, 3, 8)
 
         self._expect_dx_fixed_height = torch.Tensor([
             # Input gradient w.r.t. Image 1
-            [[0, 0, 0, 0, 0, 0, 0, 0],
-             [0, 0, 0, 0, 0, 0, 0, 0],
-             [2, 4, 6, 8, 0, 0, 0, 0]],
+            [[1, 2, 3, 4, 0, 0, 0, 0],
+             [1, 2, 3, 4, 0, 0, 0, 0],
+             [1, 2, 3, 4, 0, 0, 0, 0]],
             # Input gradient w.r.t. Image 2
-            [[0, 0, 0, 0, 0,  0,  0,  0],
-             [1, 3, 5, 7, 9, 11, 13, 15],
-             [0, 0, 0, 0, 0,  0,  0,  0]]
+            [[3, 4, 5, 6, 7, 8, 9, 10],
+             [3, 4, 5, 6, 7, 8, 9, 10],
+             [0, 0, 0, 0, 0, 0, 0, 0]]
         ]).resize_(2, 1, 3, 8)
 
         self._expect_dx_fixed_width = torch.Tensor([
             # Input gradient w.r.t. Image 1
-            [[0,  2, 0,  4, 0, 0, 0, 0],
-             [0,  6, 0,  8, 0, 0, 0, 0],
-             [0, 10, 0, 12, 0, 0, 0, 0]],
+            [[1, 1, 2, 2, 0, 0, 0, 0],
+             [3, 3, 4, 4, 0, 0, 0, 0],
+             [5, 5, 6, 6, 0, 0, 0, 0]],
             # Input gradient w.r.t. Image 2
-            [[0, 0, 0, 1, 0, 0, 0, 3],
-             [0, 0, 0, 5, 0, 0, 0, 7],
+            [[1, 1, 1, 1, 2, 2, 2, 2],
+             [3, 3, 3, 3, 4, 4, 4, 4],
              [0, 0, 0, 0, 0, 0, 0, 0]]
         ]).resize_(2, 1, 3, 8)
 
@@ -132,7 +134,7 @@ class AdaptiveMaxpool2dTest(unittest.TestCase):
         self.convert(cuda, ttype)
         x = Variable(self._x, requires_grad=True)
         xs = Variable(self._s, requires_grad=False)
-        y = adaptive_maxpool_2d(x, output_sizes=(1, 4), batch_sizes=xs)
+        y = adaptive_avgpool_2d(x, output_sizes=(1, 4), batch_sizes=xs)
         y.backward(self._dy, retain_graph=True)
         np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y)
         np.testing.assert_array_almost_equal(x.grad.data.cpu(), self._expect_dx)
@@ -141,7 +143,7 @@ class AdaptiveMaxpool2dTest(unittest.TestCase):
         self.convert(cuda, ttype)
         x = Variable(self._x, requires_grad=True)
         xs = Variable(self._s, requires_grad=False)
-        y = adaptive_maxpool_2d(x, output_sizes=(1, None), batch_sizes=xs)
+        y = adaptive_avgpool_2d(x, output_sizes=(1, None), batch_sizes=xs)
         y.backward(self._dy_fixed_height, retain_graph=True)
         np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y_fixed_height)
         np.testing.assert_array_almost_equal(x.grad.data.cpu(), self._expect_dx_fixed_height)
@@ -150,7 +152,7 @@ class AdaptiveMaxpool2dTest(unittest.TestCase):
         self.convert(cuda, ttype)
         x = Variable(self._x, requires_grad=True)
         xs = Variable(self._s, requires_grad=False)
-        y = adaptive_maxpool_2d(x, output_sizes=(None, 2), batch_sizes=xs)
+        y = adaptive_avgpool_2d(x, output_sizes=(None, 2), batch_sizes=xs)
         y.backward(self._dy_fixed_width, retain_graph=True)
         np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y_fixed_width)
         np.testing.assert_array_almost_equal(x.grad.data.cpu(), self._expect_dx_fixed_width)
@@ -159,23 +161,23 @@ class AdaptiveMaxpool2dTest(unittest.TestCase):
 # Register tests for different types, and different devices.
 for ttype, dtype in zip(['torch.FloatTensor', 'torch.DoubleTensor'],
                         ['f32', 'f64']):
-    setattr(AdaptiveMaxpool2dTest,
+    setattr(AdaptiveAvgpool2dTest,
             'test_cpu_%s' % dtype,
             lambda self: self.run_base(False, ttype))
-    setattr(AdaptiveMaxpool2dTest,
+    setattr(AdaptiveAvgpool2dTest,
             'test_fixed_height_cpu_%s' % dtype,
             lambda self: self.run_fixed_height(False, ttype))
-    setattr(AdaptiveMaxpool2dTest,
+    setattr(AdaptiveAvgpool2dTest,
             'test_fixed_width_cpu_%s' % dtype,
             lambda self: self.run_fixed_width(False, ttype))
     if is_cuda_available():
-        setattr(AdaptiveMaxpool2dTest,
+        setattr(AdaptiveAvgpool2dTest,
                 'test_gpu_%s' % dtype,
                 lambda self: self.run_base(True, ttype))
-        setattr(AdaptiveMaxpool2dTest,
+        setattr(AdaptiveAvgpool2dTest,
                 'test_fixed_height_gpu_%s' % dtype,
                 lambda self: self.run_fixed_height(True, ttype))
-        setattr(AdaptiveMaxpool2dTest,
+        setattr(AdaptiveAvgpool2dTest,
                 'test_fixed_width_gpu_%s' % dtype,
                 lambda self: self.run_fixed_width(True, ttype))
 

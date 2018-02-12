@@ -299,7 +299,7 @@ _gpu_fn = locals().get('nnutils_mask_image_from_size_gpu_f32', None)
 def is_cuda_available():
     return (torch.cuda.is_available() and _gpu_fn is not None)
 
-__all__ = [is_cuda_available,
-           mask_image_from_size,
-           adaptive_avgpool_2d,
-           adaptive_maxpool_2d]
+__all__ = ['is_cuda_available',
+           'mask_image_from_size',
+           'adaptive_avgpool_2d',
+           'adaptive_maxpool_2d']

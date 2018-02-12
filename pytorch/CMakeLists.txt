@@ -43,53 +43,57 @@ IF(PYTORCH_FOUND AND WITH_PYTORCH AND PYTHONINTERP_FOUND)
   ENDIF(PYTORCH_CUDA)
 
   SET(_INSTALL_DIR_TMP
-    "${CMAKE_CURRENT_BINARY_DIR}/inst/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+    "${CMAKE_CURRENT_BINARY_DIR}/build/lib.linux-x86_64-${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}")
   SET(_PYTHONPATH "${_INSTALL_DIR_TMP}:$ENV{PYTHONPATH}")
   MESSAGE(STATUS "PyTorch tests PYTHONPATH=${_PYTHONPATH}")
 
-  # Prepare setup.py
+  # Copy files to binary dir
+  SET(_COPY_FILES)
+  LIST(APPEND _COPY_FILES nnutils_pytorch/nnutils.py)
+  LIST(APPEND _COPY_FILES nnutils_pytorch/mask_image_from_size_test.py)
+  LIST(APPEND _COPY_FILES nnutils_pytorch/adaptive_maxpool_2d_test.py)
+  LIST(APPEND _COPY_FILES nnutils_pytorch/adaptive_avgpool_2d_test.py)
+  FOREACH(_file IN LISTS _COPY_FILES)
+    CONFIGURE_FILE("${CMAKE_CURRENT_SOURCE_DIR}/${_file}"
+      "${CMAKE_CURRENT_BINARY_DIR}/${_file}" COPYONLY)
+  ENDFOREACH(_file IN LISTS _COPY_FILES)
+
+  # Configure files
+  SET(INIT_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/nnutils_pytorch/__init__.py.in")
+  SET(INIT_PY "${CMAKE_CURRENT_BINARY_DIR}/nnutils_pytorch/__init__.py")
   SET(SETUP_PY_IN "${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in")
   SET(SETUP_PY "${CMAKE_CURRENT_BINARY_DIR}/setup.py")
   SET(OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/build/timestamp")
 
   IF(PYTORCH_CUDA)
     SET(NNUTILS_PYTORCH_PACKAGE
-	"nnutils_pytorch_cu${CUDA_VERSION_MAJOR}${CUDA_VERSION_MINOR}")
+      "nnutils_pytorch_cu${CUDA_VERSION_MAJOR}${CUDA_VERSION_MINOR}")
   ELSE()
-    SET(NNUTILS_PYTORCH_PACKAGE
-	nnutils_pytorch)
+    SET(NNUTILS_PYTORCH_PACKAGE nnutils_pytorch)
   ENDIF(PYTORCH_CUDA)
 
-  CONFIGURE_FILE("${SETUP_PY_IN}"  "${SETUP_PY}")
+  CONFIGURE_FILE("${INIT_PY_IN}" "${INIT_PY}")
+  CONFIGURE_FILE("${SETUP_PY_IN}" "${SETUP_PY}")
   ADD_CUSTOM_COMMAND(OUTPUT "${OUTPUT}"
-    COMMAND ${PYTHON_EXECUTABLE} "${SETUP_PY}" build
+    COMMAND ${PYTHON_EXECUTABLE} setup.py build
     COMMAND ${CMAKE_COMMAND} -E touch "${OUTPUT}"
-    DEPENDS nnutils_pytorch/__init__.py
-    DEPENDS nnutils_pytorch/nnutils.py
+    DEPENDS "${INIT_PY}"
+    DEPENDS "${NNUTILS_PY}"
     DEPENDS pytorch_
     WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}")
   # Custom target to run setup.py build during make
   ADD_CUSTOM_TARGET(nnutils_pytorch ALL DEPENDS "${OUTPUT}")
 
-  # This command will "install" nnutils_pytorch after it's built into a
-  # temporal directory, in order to be able to run the Python tests without
-  # actually installing the library.
-  ADD_CUSTOM_COMMAND(TARGET nnutils_pytorch POST_BUILD
-    COMMAND mkdir -p "${_INSTALL_DIR_TMP}"
-    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${_PYTHONPATH} ${PYTHON_EXECUTABLE} "${SETUP_PY}"
-    install --prefix=${CMAKE_CURRENT_BINARY_DIR}/inst
-    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    VERBATIM)
-
+  # Add tests
   ADD_TEST(NAME pytorch_mask_image_from_size_test
     COMMAND ${PYTHON_EXECUTABLE}
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/mask_image_from_size_test.py)
+    nnutils_pytorch/mask_image_from_size_test.py)
   ADD_TEST(NAME pytorch_adaptive_avgpool_2d_test
     COMMAND ${PYTHON_EXECUTABLE}
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/adaptive_avgpool_2d_test.py)
+    nnutils_pytorch/adaptive_avgpool_2d_test.py)
   ADD_TEST(NAME pytorch_adaptive_maxpool_2d_test
     COMMAND ${PYTHON_EXECUTABLE}
-    ${CMAKE_CURRENT_SOURCE_DIR}/test/adaptive_maxpool_2d_test.py)
+    nnutils_pytorch/adaptive_maxpool_2d_test.py)
   SET_TESTS_PROPERTIES(
     pytorch_mask_image_from_size_test
     pytorch_adaptive_avgpool_2d_test
@@ -107,12 +111,12 @@ IF(PYTORCH_FOUND AND WITH_PYTORCH AND PYTHONINTERP_FOUND)
   # default if not given.
   IF(PYTORCH_SETUP_PREFIX)
     INSTALL(
-      CODE "EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install --prefix=${PYTORCH_SETUP_PREFIX} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
+      CODE "EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} setup.py install --prefix=${PYTORCH_SETUP_PREFIX} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
   ELSE()
     INSTALL(
       CODE "EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} ${SETUP_PY} install WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})")
   ENDIF(PYTORCH_SETUP_PREFIX)
 
   SET_PROPERTY(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/inst" "${CMAKE_CURRENT_BINARY_DIR}/build")
+    "${CMAKE_CURRENT_BINARY_DIR}/build")
 ENDIF(PYTORCH_FOUND AND WITH_PYTORCH AND PYTHONINTERP_FOUND)

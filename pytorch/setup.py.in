@@ -34,18 +34,6 @@ CLASSIFIERS = [
     'Topic :: Software Development :: Libraries :: Python Modules',
 ]
 
-# Configure package version number
-cwd = os.path.dirname(os.path.abspath(__file__))
-version = '0.1.0'
-if os.getenv('NNUTILS_BUILD_VERSION'):
-    version = os.getenv('NNUTILS_BUILD_VERSION')
-else:
-    try:
-        sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=cwd).decode('ascii').strip()
-        version += '+' + sha[:7]
-    except Exception:
-        pass
-
 WITH_CUDA = True if ('${PYTORCH_CUDA}').upper() == 'ON' else False
 
 headers = ['${PROJECT_SOURCE_DIR}/pytorch/src/cpu/mask_image_from_size.h',
@@ -95,10 +83,10 @@ if __name__ == '__main__':
         classifiers=CLASSIFIERS,
         description=DESCRIPTION,
         ext_modules=[ffi],
+        include_package_data=True,
         install_requires=['torch', 'cffi'],
         license='MIT',
         name=PACKAGE_NAME,
         packages=['nnutils_pytorch'],
-        package_dir={'': '${CMAKE_CURRENT_SOURCE_DIR}'},
         url=URL,
-        version=version)
+        version='${NNUTILS_VERSION}')
