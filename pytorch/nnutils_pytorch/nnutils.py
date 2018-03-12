@@ -131,14 +131,14 @@ class _AdaptiveAvgpool2d(_FunctionBase):
             out_h = inp_h if out_h is None else out_h
             out_w = inp_w if out_w is None else out_w
 
-            batch_output = batch_input.new(N, C, out_h, out_w)
+            batch_output = batch_input.new(N, C, out_h, out_w).zero_()
             cls._assert_call(_adap_avgpool_2d_generic_fwd,
                              batch_sizes, output_sizes,
                              batch_input, batch_output,
                              tensor_type=batch_input.type())
             ctx.output_sizes = output_sizes
         else:
-            batch_output = batch_input.new(N, C, out_h, out_w)
+            batch_output = batch_input.new(N, C, out_h, out_w).zero_()
             cls._assert_call(_adap_avgpool_2d_fwd,
                              batch_sizes, batch_input, batch_output,
                              tensor_type=batch_input.type())
@@ -195,7 +195,7 @@ class _AdaptiveMaxpool2d(_FunctionBase):
             out_h = inp_h if out_h is None else out_h
             out_w = inp_w if out_w is None else out_w
 
-            batch_output = batch_input.new(N, C, out_h, out_w)
+            batch_output = batch_input.new(N, C, out_h, out_w).zero_()
             index = batch_sizes.new(N, C, out_h, out_w)
             cls._assert_call(_adap_maxpool_2d_generic_fwd,
                              batch_sizes, output_sizes,
@@ -203,7 +203,7 @@ class _AdaptiveMaxpool2d(_FunctionBase):
                              tensor_type=batch_input.type())
             ctx.output_sizes = output_sizes
         else:
-            batch_output = batch_input.new(N, C, out_h, out_w)
+            batch_output = batch_input.new(N, C, out_h, out_w).zero_()
             index = batch_sizes.new(N, C, out_h, out_w)
             cls._assert_call(_adap_maxpool_2d_fwd,
                              batch_sizes,  batch_input, batch_output, index,
