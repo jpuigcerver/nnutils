@@ -2,6 +2,12 @@ language: python
 
 os:
   - linux
+  addons:
+    apt:
+      sources:
+        - ubuntu-toolchain-r-test
+      packages:
+        - g++-4.9
 
 python:
   - "2.7"
@@ -12,7 +18,7 @@ env:
   global:
     - GTEST_ROOT="$HOME/.local"
   matrix:
-    - CC=gcc CXX=g++
+    - CC=gcc-4.9 CXX=g++-4.9
 
 before_install:
   - travis/install_packages.sh
