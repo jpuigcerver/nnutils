@@ -97,6 +97,7 @@ void adaptive_maxpool_2d_bwd(
             // Index of the input pixel that was selected as the maximum.
             const Int idx = pixv(out_idx + out_offset, out_W, y, x);
             // Update input gradients for the selected input pixel.
+            #pragma omp atomic
             grad_input[inp_offset + idx] += pixv(g_out_nc, out_W, y, x);
           }
         }

@@ -33,12 +33,13 @@ void adaptive_maxpool_2d_fwd(
 
   for (Int n = thGz; n < N; n += NTGz) {
     // Copy image size to shared memory to avoid repeated access to global mem.
-    if (thBx == 0 && thBy == 0) {
+    if (thBx == 0 && thBy == 0 && thBz == 0) {
       _inp_sizes[0] = inp_sizes ? inp_sizes[2 * n    ] : inp_H;
       _inp_sizes[1] = inp_sizes ? inp_sizes[2 * n + 1] : inp_W;
       _out_sizes[0] = out_sizes ? out_sizes[2 * n    ] : out_H;
       _out_sizes[1] = out_sizes ? out_sizes[2 * n + 1] : out_W;
     }
+    // All threads must wait (x=0, y=0, z=0) to fill input/output sizes
     __syncthreads();
     const Int hi = _inp_sizes[0], wi = _inp_sizes[1];  // Input height, width.
     const Int ho = _out_sizes[0], wo = _out_sizes[1];  // Output height, width.
@@ -86,10 +87,11 @@ void adaptive_maxpool_2d_bwd(
   __shared__ Int _out_sizes[2];
   for (Int n = thGz; n < N; n += NTGz) {
     // Copy image size to shared memory to avoid repeated access to global mem.
-    if (thBx == 0 && thBy == 0) {
+    if (thBx == 0 && thBy == 0 && thBz == 0) {
       _out_sizes[0] = out_sizes ? out_sizes[2 * n    ] : out_H;
       _out_sizes[1] = out_sizes ? out_sizes[2 * n + 1] : out_W;
     }
+    // All threads must wait (x=0, y=0, z=0) to fill the output sizes
     __syncthreads();
     const Int ho = _out_sizes[0], wo = _out_sizes[1];  // Output height, width.
     for (Int c = thGy; c < C; c += NTGy) {
@@ -108,8 +110,10 @@ void adaptive_maxpool_2d_bwd(
         if (y < ho && x < wo) {
           // Index of the input pixel that was selected as the maximum.
           const Int idx = pixv<Int, Int>(index_nc, out_W, y, x);
+          T go = pixv<T, Int>(g_out_nc, out_W, y, x);
           // Update input gradients for the selected input pixel.
-          g_inp_nc[idx] += pixv<T, Int>(g_out_nc, out_W, y, x);
+          // g_inp_nc[idx] += pixv<T, Int>(g_out_nc, out_W, y, x);
+          atomicAdd(g_inp_nc + idx, go);
         }
       }
     }
@@ -152,6 +156,8 @@ void adaptive_maxpool_2d_bwd(
   assert(grad_output != nullptr);
   assert(index != nullptr);
   assert(grad_input != nullptr);
+  // Note: each block process an individual channel (block_size.y = 1) and
+  // sample in the batch (block_size.z = 1)
   const dim3 block_size(512, 1, 1);
   const dim3 grid_size(NUM_BLOCKS(out_H * out_W, 512),
                        NUM_BLOCKS(C, 1),
