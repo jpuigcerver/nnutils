@@ -45,7 +45,6 @@ ffi = create_extension(
     name="nnutils_pytorch._nnutils",
     package=True,
     language="c++",
-    source_extension=".cc",
     headers=headers,
     sources=sources,
     with_cuda=torch.cuda.is_available(),
