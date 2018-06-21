@@ -103,6 +103,7 @@ void adaptive_avgpool_2d_bwd(
             const T val = pixv(grad_output_nc, out_W, y, x) / (kh * kw);
             for (Int i = i0; i < i1; ++i) {
               for (Int j = j0; j < j1; ++j) {
+                #pragma omp atomic
                 pixv(grad_input_nc, inp_W, i, j) += val;
               }
             }
