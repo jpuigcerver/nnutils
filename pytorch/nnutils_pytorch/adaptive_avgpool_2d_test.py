@@ -262,14 +262,13 @@ class AdaptiveAvgpool2dTest(unittest.TestCase):
 
 
 # Register tests for different types, and different devices.
-types = [("torch.FloatTensor", "f32"), ] #("torch.DoubleTensor", "f64")]
+types = [("torch.FloatTensor", "f32"), ("torch.DoubleTensor", "f64")]
 devices = [("cpu", False)]
 if is_cuda_available():
     devices += [("gpu", True)]
 
 for ttype, dtype in types:
     for device, use_cuda in devices:
-        """
         setattr(
             AdaptiveAvgpool2dTest,
             "test_%s_%s" % (device, dtype),
@@ -285,7 +284,6 @@ for ttype, dtype in types:
             "test_fixed_width_%s_%s" % (device, dtype),
             lambda self: self.run_fixed_width(use_cuda, ttype),
         )
-        """
         setattr(
             AdaptiveAvgpool2dTest,
             "test_compare_to_reference_smaller_output_%s_%s" % (device, dtype),
