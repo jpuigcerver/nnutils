@@ -1,48 +1,68 @@
 from __future__ import absolute_import
 
-import numpy as np
-import torch
 import unittest
 
-from torch.autograd import Variable
+import torch
 from nnutils_pytorch import is_cuda_available, mask_image_from_size
+from torch.autograd import Variable
 
 
 class MaskImageFromSizeTest(unittest.TestCase):
     def setUp(self):
-        self._s = torch.LongTensor([[1, 2], [1, 3]])
-        self._x = torch.Tensor([[1, 2, 3, 4], [5, 6, 7, 8]]).resize_(2, 1, 1, 4)
-
-        self._dy = torch.Tensor([[8, 7, 6, 5], [4, 3, 2, 1]]).resize_(2, 1, 1, 4)
-
-        self._expect_y = torch.Tensor([[1, 2, -1, -1], [5, 6, 7, -1]]).resize_(
-            2, 1, 1, 4
+        self.x = torch.randn(5, 3, 213, 217)
+        self.xs = torch.LongTensor(
+            [[29, 29], [213, 217], [213, 15], [15, 217], [97, 141]]
         )
-        self._expect_dx = torch.Tensor([[8, 7, 0, 0], [4, 3, 2, 0]]).resize_(2, 1, 1, 4)
+        # Cost for each output pixel
+        self.cy = torch.randn(5, 3, 213, 217)
 
     def convert(self, cuda, dtype):
-        self._x = self._x.type(dtype)
-        self._dy = self._dy.type(dtype)
-        self._expect_y = self._expect_y.type(dtype)
-        self._expect_dx = self._expect_dx.type(dtype)
-
+        self.x = self.x.type(dtype)
+        self.cy = self.cy.type(dtype)
         if cuda:
-            self._x = self._x.cuda()
-            self._s = self._s.cuda()
-            self._dy = self._dy.cuda()
+            self.x = self.x.cuda()
+            self.xs = self.xs.cuda()
+            self.cy = self.cy.cuda()
         else:
-            self._x = self._x.cpu()
-            self._s = self._s.cpu()
-            self._dy = self._dy.cpu()
+            self.x = self.x.cpu()
+            self.xs = self.xs.cpu()
+            self.cy = self.cy.cpu()
 
     def run_base(self, cuda, ttype):
         self.convert(cuda, ttype)
-        x = Variable(self._x, requires_grad=True)
-        xs = Variable(self._s, requires_grad=False)
-        y = mask_image_from_size(x, xs, mask_value=-1)
-        y.backward(self._dy, retain_graph=True)
-        np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y)
-        np.testing.assert_array_almost_equal(x.grad.data.cpu(), self._expect_dx)
+        x = Variable(self.x, requires_grad=True)
+        cy = Variable(self.cy)
+        y = mask_image_from_size(
+            batch_input=x, batch_sizes=Variable(self.xs), mask_value=99
+        )
+        # Check forward
+        for i, (xi, yi, s) in enumerate(zip(self.x, y.data, self.xs)):
+            # Check non-masked area
+            d = torch.sum(yi[:, : s[0], : s[1]] != xi[:, : s[0], : s[1]])
+            self.assertEqual(
+                0, d, msg="Sample {} failed in the non-masked area".format(i)
+            )
+            # Check masked area
+            d1 = torch.sum(yi[:, s[0] :, :] != 99) if s[0] < self.x.size(2) else 0
+            d2 = torch.sum(yi[:, :, s[1] :] != 99) if s[1] < self.x.size(3) else 0
+            self.assertEqual(
+                0, d1 + d2, msg="Sample {} failed in the masked area".format(i)
+            )
+        # Check gradients
+        cost = torch.sum(torch.mul(y, cy))
+        dx, = torch.autograd.grad(cost, (x,))
+        for i, (xi, yi, s) in enumerate(zip(dx.data, self.cy, self.xs)):
+            # Check non-masked area
+            d = torch.sum(xi[:, : s[0], : s[1]] != yi[:, : s[0], : s[1]])
+            self.assertEqual(
+                0, d, msg="Sample {} failed in the non-masked area".format(i)
+            )
+            # Check masked area
+            d1 = torch.sum(xi[:, s[0] :, :] != 0) if s[0] < self.x.size(2) else 0
+            d2 = torch.sum(xi[:, :, s[1] :] != 0) if s[1] < self.x.size(3) else 0
+            self.assertEqual(
+                0, d1 + d2, msg="Sample {} failed in the masked area".format(i)
+            )
 
 
 # Register tests for different types, and different devices.

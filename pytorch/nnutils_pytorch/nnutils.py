@@ -90,6 +90,7 @@ class _MaskImageFromSize(_FunctionBase):
                 # arguments to the actual C function
                 grad_input,
                 batch_sizes,
+                # Note: Gradient in the masked areas is 0, not "masked_value"!
                 0,
             )
             return grad_input, None, None, None
