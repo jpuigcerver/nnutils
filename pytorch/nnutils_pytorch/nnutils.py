@@ -59,44 +59,39 @@ _mask_image = _create_impl_dict(
 
 class _MaskImageFromSize(_FunctionBase):
     @classmethod
-    def forward(cls, ctx, batch_input, batch_sizes=None, mask_value=0, inplace=False):
-        if batch_sizes is None:
-            return batch_input
-        else:
-            batch_input = batch_input.contiguous()
-            batch_sizes = batch_sizes.contiguous() if batch_sizes is not None else None
-            ctx.save_for_backward(batch_sizes)
-            ctx.mask_value = mask_value
-            ctx.inplace = inplace
-            assert batch_input.is_cuda == batch_sizes.is_cuda
-            batch_output = batch_input if ctx.inplace else batch_input.clone()
-            cls._assert_call(
-                _mask_image,
-                # arguments to the actual C function
-                batch_output,
-                batch_sizes,
-                mask_value,
-            )
-            return batch_output
+    def forward(cls, ctx, batch_input, batch_sizes, mask_value=0, inplace=False):
+        assert batch_input.is_cuda == batch_sizes.is_cuda
+        ctx.save_for_backward(batch_sizes)
+        ctx.mask_value = mask_value
+        ctx.inplace = inplace
+        batch_input = batch_input.contiguous()
+        batch_sizes = batch_sizes.contiguous()
+        batch_output = batch_input if ctx.inplace else batch_input.clone()
+        cls._assert_call(
+            _mask_image,
+            # arguments to the actual C function
+            batch_output,
+            batch_sizes,
+            mask_value,
+        )
+        return batch_output
 
     @classmethod
     def backward(cls, ctx, grad_output):
-        grad_output = grad_output.contiguous()
         batch_sizes, = ctx.saved_tensors
-        if batch_sizes is None:
-            return grad_output
-        else:
-            assert grad_output.is_cuda == batch_sizes.is_cuda
-            grad_input = grad_output if ctx.inplace else grad_output.clone()
-            cls._assert_call(
-                _mask_image,
-                # arguments to the actual C function
-                grad_input,
-                batch_sizes,
-                # Note: Gradient in the masked areas is 0, not "masked_value"!
-                0,
-            )
-            return grad_input, None, None, None
+        grad_output = grad_output.contiguous()
+        batch_sizes = batch_sizes.contiguous()
+        assert grad_output.is_cuda == batch_sizes.is_cuda
+        grad_input = grad_output if ctx.inplace else grad_output.clone()
+        cls._assert_call(
+            _mask_image,
+            # arguments to the actual C function
+            grad_input,
+            batch_sizes,
+            # Note: Gradient in the masked areas is 0, not "masked_value"!
+            0,
+        )
+        return grad_input, None, None, None
 
 
 _adap_avgpool_2d_fwd = _create_impl_dict(
@@ -292,7 +287,10 @@ class _AdaptiveMaxpool2d(_FunctionBase):
 
 
 def mask_image_from_size(batch_input, batch_sizes=None, mask_value=0, inplace=False):
-    return _MaskImageFromSize.apply(batch_input, batch_sizes, mask_value, inplace)
+    if batch_sizes is None:
+        return batch_input
+    else:
+        return _MaskImageFromSize.apply(batch_input, batch_sizes, mask_value, inplace)
 
 
 def adaptive_avgpool_2d(batch_input, output_sizes, batch_sizes=None):
