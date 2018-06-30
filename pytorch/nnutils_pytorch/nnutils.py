@@ -63,6 +63,8 @@ class _MaskImageFromSize(_FunctionBase):
         if batch_sizes is None:
             return batch_input
         else:
+            batch_input = batch_input.contiguous()
+            batch_sizes = batch_sizes.contiguous() if batch_sizes else None
             ctx.save_for_backward(batch_sizes)
             ctx.mask_value = mask_value
             ctx.inplace = inplace
@@ -79,6 +81,7 @@ class _MaskImageFromSize(_FunctionBase):
 
     @classmethod
     def backward(cls, ctx, grad_output):
+        grad_output = grad_output.contiguous()
         batch_sizes, = ctx.saved_tensors
         if batch_sizes is None:
             return grad_output
@@ -321,7 +324,7 @@ def adaptive_avgpool_2d(batch_input, output_sizes, batch_sizes=None):
 
 
 def adaptive_maxpool_2d(
-        batch_input, output_sizes, batch_sizes=None, return_indices=False
+    batch_input, output_sizes, batch_sizes=None, return_indices=False
 ):
     r"""Applies a 2D adaptive max pooling over an input signal composed of
     several input planes.
