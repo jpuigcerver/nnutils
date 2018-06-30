@@ -64,7 +64,7 @@ class _MaskImageFromSize(_FunctionBase):
             return batch_input
         else:
             batch_input = batch_input.contiguous()
-            batch_sizes = batch_sizes.contiguous() if batch_sizes else None
+            batch_sizes = batch_sizes.contiguous() if batch_sizes is not None else None
             ctx.save_for_backward(batch_sizes)
             ctx.mask_value = mask_value
             ctx.inplace = inplace

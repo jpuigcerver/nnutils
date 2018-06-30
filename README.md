@@ -39,66 +39,25 @@ adaptive pooling.
 
 ## Installation
 
-### PyTorch bindings with pip
-
-The easiest way of using nnutils with PyTorch is using pip. I have 
-precompiled the tool for Linux using different version of Python
-and supporting different devices. The value in each cell corresponds to 
-the commit from which the wheel was built.
-
-|          | Python 2.7 | Python 3.5 | Python 3.6 |
-|----------|:----------:|:----------:|:----------:|
-| CPU-only | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.1.0+fade816-cp27-cp27mu-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.1.0+fade816-cp35-cp35m-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.1.0+fade816-cp36-cp36m-linux_x86_64.whl) |
-| CUDA 7.5 | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu75/nnutils_pytorch_cu75-0.1.0+fade816-cp27-cp27mu-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu75/nnutils_pytorch_cu75-0.1.0+fade816-cp35-cp35m-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu75/nnutils_pytorch_cu75-0.1.0+fade816-cp36-cp36m-linux_x86_64.whl) |
-| CUDA 8.0 | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu80/nnutils_pytorch_cu80-0.1.0+fade816-cp27-cp27mu-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu80/nnutils_pytorch_cu80-0.1.0+fade816-cp35-cp35m-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu80/nnutils_pytorch_cu80-0.1.0+fade816-cp36-cp36m-linux_x86_64.whl) |
-| CUDA 9.0 | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu90/nnutils_pytorch_cu90-0.1.0+fade816-cp27-cp27mu-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu90/nnutils_pytorch_cu90-0.1.0+fade816-cp35-cp35m-linux_x86_64.whl) | [fade816](https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cu90/nnutils_pytorch_cu90-0.1.0+fade816-cp36-cp36m-linux_x86_64.whl) |
-
-For instance, to install the CPU-only version for Python 3.5:
-```bash
-pip3 install https://www.prhlt.upv.es/~jpuigcerver/nnutils/whl/cpu/nnutils_pytorch-0.1.0+fade816-cp35-cp35m-linux_x86_64.whl
-```
-
-Notice that each library was compiled to support only the most common and supported architectures in each CUDA release.
-Choose the compiled version accordingly:
-
-|          | Supported architectures        | Compute Capability                |
-|----------|-------------------------------:|----------------------------------:|
-| CUDA 7.5 | Kepler, Maxwell                | 3.0, 3.5, 5.0, 5.2                |
-| CUDA 8.0 | Kepler, Maxwell, Pascal        | 3.0, 3.5, 5.0, 5.2, 6.0, 6.1      |
-| CUDA 9.0 | Kepler, Maxwell, Pascal, Volta | 3.0, 3.5, 5.0, 5.2, 6.0, 6.1, 7.0 |
-
-### From sources
-
 The installation process should be pretty straightforward assuming that you
-have installed correctly the required libraries and tools.
+have correctly installed the required libraries and tools.
+
+### PyTorch bindings (recommended)
 
 ```bash
 git clone https://github.com/jpuigcerver/nnutils.git
-cd nnutils
-mkdir build
-cd build
-cmake ..
-make
-make install
+cd nnutils/pytorch
+python setup.py build
+python setup.py install
 ```
 
-By default, it will try to compile the PyTorch bindings with CUDA support and
-install them in the default location for Python libraries in your system.
+### Standalone C++ library
 
-If you have any problem installing the library, read through the CMake errors
-and warnings. In most cases, the problems are due to installing the tools in
-non-standard locations or using old versions of them.
-
-You can set many CMake variables to aid it to detect the required software.
-Some helpful variables are:
-
-- `CUDA_TOOLKIT_ROOT_DIR`: Specify the directory where you installed the
-  NVIDIA CUDA Toolkit.
-- `CUDA_ARCH_LIST`: Specify the list of CUDA architectures that should be
-  supported during the compilation. By default it will use "Auto", which will
-  compile _only_ for the architectures supported by your graphic cards.
-- `Python_ADDITIONAL_VERSIONS`: When you have multiple versions of Python
-  installed in your system, you can choose to use a specific one (e.g. 3.5)
-  with this variable.
-- `PYTORCH_SETUP_PREFIX`: Prefix location to install the PyTorch bindings
-  (e.g. /home/jpuigcerver/.local).
+```bash
+git clone https://github.com/jpuigcerver/nnutils.git
+mkdir -p nnutils/build
+cd nnutils/build
+cmake ..
+make
+make install 
+```
