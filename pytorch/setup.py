@@ -1,18 +1,19 @@
 import os
 import torch
 from setuptools import setup, find_packages
-from torch.utils.ffi import create_extension
+from torch.utils.cpp_extension import BuildExtension, CppExtension, CUDAExtension
 
-from cpp_extension import BuildExtension
 
+"""
 extra_compile_args = {
     "cxx": ["-std=c++11", "-O2", "-fopenmp"],
     "nvcc": ["-std=c++11", "-O2"],
 }
 
-CC = os.getenv('CC', None)
+CC = os.getenv("CC", None)
 if CC is not None:
     extra_compile_args["nvcc"].append("-ccbin=" + CC)
+"""
 
 include_dirs = ["../"]
 
@@ -41,17 +42,10 @@ if torch.cuda.is_available():
         "src/gpu/mask_image_from_size.cu",
     ]
 
-ffi = create_extension(
-    name="nnutils_pytorch._nnutils",
-    package=True,
-    language="c++",
-    headers=headers,
-    sources=sources,
-    with_cuda=torch.cuda.is_available(),
-    include_dirs=include_dirs,
-    extra_compile_args=extra_compile_args,
-)
-ffi = ffi.distutils_extension()
+    Extension = CUDAExtension
+else:
+    Extension = CppExtension
+
 
 setup(
     name="nnutils_pytorch",
@@ -62,7 +56,15 @@ setup(
     author_email="joapuipe@gmail.com",
     license="MIT",
     packages=find_packages(),
-    ext_modules=[ffi],
+    ext_modules=[
+        Extension(
+            name="nnutils_pytorch",
+            #sources=sources,
+            sources=["src/cpu/mask_image_from_size.cc"],
+            include_dirs=include_dirs,
+            extra_compile_args=["--std=c++11", "-O2", "-fopenmp"],
+        )
+    ],
     cmdclass={"build_ext": BuildExtension},
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -82,10 +84,6 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    setup_requires=[
-        'torch>=0.3',
-    ],
-    install_requires=[
-        'torch>=0.3',
-    ],
+    setup_requires=["pybind11", "torch>=0.4.1"],
+    install_requires=["pybind11", "torch>=0.4.1"],
 )
