@@ -5,8 +5,8 @@ from torch.utils.cpp_extension import BuildExtension, CppExtension, CUDAExtensio
 
 
 extra_compile_args = {
-    "cxx": ["-std=c++11", "-O2", "-fopenmp", "-DWITH_CUDA"],
-    "nvcc": ["-std=c++11", "-O2", "-DWITH_CUDA"],
+    "cxx": ["-std=c++11", "-O2", "-fopenmp"],
+    "nvcc": ["-std=c++11", "-O2"],
 }
 
 CC = os.getenv("CC", None)
@@ -40,6 +40,9 @@ if torch.cuda.is_available():
     ]
 
     Extension = CUDAExtension
+
+    extra_compile_args["cxx"].append("-DWITH_CUDA")
+    extra_compile_args["nvcc"].append("-DWITH_CUDA")
 else:
     Extension = CppExtension
 
