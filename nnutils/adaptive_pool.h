@@ -1,6 +1,8 @@
 #ifndef NNUTILS_ADAPTIVE_POOL_H_
 #define NNUTILS_ADAPTIVE_POOL_H_
 
+#include <cmath>
+
 #ifndef __host__
 #define __host__
 #endif

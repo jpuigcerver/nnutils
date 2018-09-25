@@ -3,7 +3,7 @@ from __future__ import absolute_import
 import unittest
 
 import torch
-from nnutils_pytorch import is_cuda_available, mask_image_from_size
+from nnutils_pytorch import mask_image_from_size
 from torch.autograd import Variable
 
 
@@ -30,10 +30,10 @@ class MaskImageFromSizeTest(unittest.TestCase):
 
     def run_base(self, cuda, ttype):
         self.convert(cuda, ttype)
-        x = Variable(self.x, requires_grad=True)
-        cy = Variable(self.cy)
+        x = self.x.detach().requires_grad_()
+        cy = self.cy.detach()
         y = mask_image_from_size(
-            batch_input=x, batch_sizes=Variable(self.xs), mask_value=99
+            batch_input=x, batch_sizes=self.xs, mask_value=99
         )
         # Check forward
         for i, (xi, yi, s) in enumerate(zip(self.x, y.data, self.xs)):
@@ -43,8 +43,10 @@ class MaskImageFromSizeTest(unittest.TestCase):
                 0, d, msg="Sample {} failed in the non-masked area".format(i)
             )
             # Check masked area
-            d1 = torch.sum(yi[:, s[0] :, :] != 99) if s[0] < self.x.size(2) else 0
-            d2 = torch.sum(yi[:, :, s[1] :] != 99) if s[1] < self.x.size(3) else 0
+            d1 = torch.sum(yi[:, s[0]:, :] != 99) if s[0] < self.x.size(
+                2) else 0
+            d2 = torch.sum(yi[:, :, s[1]:] != 99) if s[1] < self.x.size(
+                3) else 0
             self.assertEqual(
                 0, d1 + d2, msg="Sample {} failed in the masked area".format(i)
             )
@@ -58,30 +60,28 @@ class MaskImageFromSizeTest(unittest.TestCase):
                 0, d, msg="Sample {} failed in the non-masked area".format(i)
             )
             # Check masked area
-            d1 = torch.sum(xi[:, s[0] :, :] != 0) if s[0] < self.x.size(2) else 0
-            d2 = torch.sum(xi[:, :, s[1] :] != 0) if s[1] < self.x.size(3) else 0
+            d1 = torch.sum(xi[:, s[0]:, :] != 0) if s[0] < self.x.size(2) else 0
+            d2 = torch.sum(xi[:, :, s[1]:] != 0) if s[1] < self.x.size(3) else 0
             self.assertEqual(
                 0, d1 + d2, msg="Sample {} failed in the masked area".format(i)
             )
 
 
 # Register tests for different types, and different devices.
-for ttype, dtype in zip(
-    [
-        "torch.ShortTensor",
-        "torch.IntTensor",
-        "torch.LongTensor",
-        "torch.FloatTensor",
-        "torch.DoubleTensor",
-    ],
-    ["s16", "s32", "s64", "f32", "f64"],
-):
+for ttype, dtype in [
+    ("torch.ByteTensor", "u8"),
+    ("torch.ShortTensor", "s16"),
+    ("torch.IntTensor", "s32"),
+    ("torch.LongTensor", "s64"),
+    ("torch.FloatTensor", "f32"),
+    ("torch.DoubleTensor", "f64"),
+]:
     setattr(
         MaskImageFromSizeTest,
         "test_cpu_%s" % dtype,
         lambda self: self.run_base(False, ttype),
     )
-    if is_cuda_available():
+    if torch.cuda.is_available():
         setattr(
             MaskImageFromSizeTest,
             "test_gpu_%s" % dtype,

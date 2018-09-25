@@ -4,8 +4,7 @@ import numpy as np
 import torch
 import unittest
 
-from torch.autograd import Variable
-from nnutils_pytorch import is_cuda_available, adaptive_avgpool_2d
+from nnutils_pytorch import adaptive_avgpool_2d
 from torch.nn.functional import adaptive_avg_pool2d as torch_adaptive_avg_pool2d
 
 
@@ -161,8 +160,8 @@ class AdaptiveAvgpool2dTest(unittest.TestCase):
 
     def run_base(self, cuda, ttype):
         self.convert(cuda, ttype)
-        x = Variable(self._x, requires_grad=True)
-        xs = Variable(self._s, requires_grad=False)
+        x = self._x.detach().requires_grad_()
+        xs = self._s.detach()
         y = adaptive_avgpool_2d(x, output_sizes=(1, 4), batch_sizes=xs)
         y.backward(self._dy, retain_graph=True)
         np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y)
@@ -170,8 +169,8 @@ class AdaptiveAvgpool2dTest(unittest.TestCase):
 
     def run_fixed_height(self, cuda, ttype):
         self.convert(cuda, ttype)
-        x = Variable(self._x, requires_grad=True)
-        xs = Variable(self._s, requires_grad=False)
+        x = self._x.detach().requires_grad_()
+        xs = self._s.detach()
         y = adaptive_avgpool_2d(x, output_sizes=(1, None), batch_sizes=xs)
         y.backward(self._dy_fixed_height, retain_graph=True)
         np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y_fixed_height)
@@ -181,8 +180,8 @@ class AdaptiveAvgpool2dTest(unittest.TestCase):
 
     def run_fixed_width(self, cuda, ttype):
         self.convert(cuda, ttype)
-        x = Variable(self._x, requires_grad=True)
-        xs = Variable(self._s, requires_grad=False)
+        x = self._x.detach().requires_grad_()
+        xs = self._s.detach()
         y = adaptive_avgpool_2d(x, output_sizes=(None, 2), batch_sizes=xs)
         y.backward(self._dy_fixed_width, retain_graph=True)
         np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y_fixed_width)
@@ -206,10 +205,9 @@ class AdaptiveAvgpool2dTest(unittest.TestCase):
             x2 = x2.cpu()
             x3 = x3.cpu()
             xs3 = xs3.cpu()
-        x1 = Variable(x1, requires_grad=True)
-        x2 = Variable(x2, requires_grad=True)
-        x3 = Variable(x3, requires_grad=True)
-        xs3 = Variable(xs3)
+        x1 = x1.requires_grad_()
+        x2 = x2.requires_grad_()
+        x3 = x3.requires_grad_()
         # Compare forward
         y1 = torch_adaptive_avg_pool2d(x1, output_size=(2, 3))
         y2 = torch_adaptive_avg_pool2d(x2, output_size=(2, 3))
@@ -241,10 +239,9 @@ class AdaptiveAvgpool2dTest(unittest.TestCase):
             x2 = x2.cpu()
             x3 = x3.cpu()
             xs3 = xs3.cpu()
-        x1 = Variable(x1, requires_grad=True)
-        x2 = Variable(x2, requires_grad=True)
-        x3 = Variable(x3, requires_grad=True)
-        xs3 = Variable(xs3)
+        x1 = x1.requires_grad_()
+        x2 = x2.requires_grad_()
+        x3 = x3.requires_grad_()
         # Compare forward
         y1 = torch_adaptive_avg_pool2d(x1, output_size=(20, 25))
         y2 = torch_adaptive_avg_pool2d(x2, output_size=(20, 25))
@@ -264,7 +261,7 @@ class AdaptiveAvgpool2dTest(unittest.TestCase):
 # Register tests for different types, and different devices.
 types = [("torch.FloatTensor", "f32"), ("torch.DoubleTensor", "f64")]
 devices = [("cpu", False)]
-if is_cuda_available():
+if torch.cuda.is_available():
     devices += [("gpu", True)]
 
 for ttype, dtype in types:

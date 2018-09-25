@@ -35,7 +35,7 @@ adaptive pooling.
 - For running tests: [Google Test](https://github.com/google/googletest).
 
 ### PyTorch bindings:
-- [PyTorch](http://pytorch.org/) (tested with version 0.3.0).
+- [PyTorch](http://pytorch.org/) (tested with version 0.4.1).
 
 ## Installation
 
@@ -59,5 +59,5 @@ mkdir -p nnutils/build
 cd nnutils/build
 cmake ..
 make
-make install 
+make install
 ```

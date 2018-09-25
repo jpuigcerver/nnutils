@@ -4,38 +4,35 @@ from setuptools import setup, find_packages
 from torch.utils.cpp_extension import BuildExtension, CppExtension, CUDAExtension
 
 
-"""
 extra_compile_args = {
-    "cxx": ["-std=c++11", "-O2", "-fopenmp"],
-    "nvcc": ["-std=c++11", "-O2"],
+    "cxx": ["-std=c++11", "-O2", "-fopenmp", "-DWITH_CUDA"],
+    "nvcc": ["-std=c++11", "-O2", "-DWITH_CUDA"],
 }
 
 CC = os.getenv("CC", None)
 if CC is not None:
     extra_compile_args["nvcc"].append("-ccbin=" + CC)
-"""
 
-include_dirs = ["../"]
+
+include_dirs = [os.path.dirname(os.path.realpath(__file__)) + "/.."]
 
 headers = [
-    "src/cpu/adaptive_avgpool_2d.h",
-    "src/cpu/adaptive_maxpool_2d.h",
-    "src/cpu/mask_image_from_size.h",
+    "src/adaptive_avgpool_2d.h",
+    "src/adaptive_maxpool_2d.h",
+    "src/mask_image_from_size.h",
 ]
 
 sources = [
+    "src/binding.cc",
+    "src/adaptive_avgpool_2d.cc",
+    "src/adaptive_maxpool_2d.cc",
+    "src/mask_image_from_size.cc",
     "src/cpu/adaptive_avgpool_2d.cc",
     "src/cpu/adaptive_maxpool_2d.cc",
     "src/cpu/mask_image_from_size.cc",
 ]
 
 if torch.cuda.is_available():
-    headers += [
-        "src/gpu/adaptive_avgpool_2d.h",
-        "src/gpu/adaptive_maxpool_2d.h",
-        "src/gpu/mask_image_from_size.h",
-    ]
-
     sources += [
         "src/gpu/adaptive_avgpool_2d.cu",
         "src/gpu/adaptive_maxpool_2d.cu",
@@ -58,11 +55,10 @@ setup(
     packages=find_packages(),
     ext_modules=[
         Extension(
-            name="nnutils_pytorch",
-            #sources=sources,
-            sources=["src/cpu/mask_image_from_size.cc"],
+            name="_nnutils_pytorch",
+            sources=sources,
             include_dirs=include_dirs,
-            extra_compile_args=["--std=c++11", "-O2", "-fopenmp"],
+            extra_compile_args=extra_compile_args,
         )
     ],
     cmdclass={"build_ext": BuildExtension},
