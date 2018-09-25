@@ -27,7 +27,7 @@ adaptive pooling.
 ## Requirements
 
 ### Minimum:
-- C++11 compiler (tested with GCC 4.8.2, 5.4.0, Clang 3.5.0).
+- C++11 compiler (tested with GCC 4.8.2, 5.5.0, 6.4.0).
 - [CMake 3.0](https://cmake.org/).
 
 ### Recommended:
@@ -35,6 +35,7 @@ adaptive pooling.
 - For running tests: [Google Test](https://github.com/google/googletest).
 
 ### PyTorch bindings:
+- Python: 2.7, 3.5, 3.6 or 3.7 (tested with version 2.7, 3.5 and 3.6).
 - [PyTorch](http://pytorch.org/) (tested with version 0.4.1).
 
 ## Installation

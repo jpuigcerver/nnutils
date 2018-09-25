@@ -1,3 +1,6 @@
+dist: trusty
+sudo: false
+
 language: python
 
 os:
@@ -7,13 +10,9 @@ addons:
   apt:
     sources:
       - ubuntu-toolchain-r-test
-      - llvm-toolchain-precise-3.8
     packages:
       - gcc-4.9
       - g++-4.9
-      - gcc-5.4
-      - g++-5.4
-      - clang-3.8
 
 python:
   - "2.7"
@@ -25,8 +24,28 @@ env:
     - GTEST_ROOT="$HOME/.local"
   matrix:
     - CC=gcc-4.9 CXX=g++-4.9
-    - CC=gcc-5.4 CXX=g++-5.4
-    - CC=clang-3.8 CXX=clang++-3.8
+
+# Add tests with additional compilers
+matrix:
+  include:
+    - python: 3.6
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-5
+            - g++-5
+      env: CC=gcc-5 CXX=g++-5
+    - python: 3.6
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - gcc-6
+            - g++-6
+      env: CC=gcc-6 CXX=g++-6
 
 before_install:
   - travis/install_packages.sh
