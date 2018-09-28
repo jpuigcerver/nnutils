@@ -115,7 +115,7 @@ CC=gcc-4.9 CXX=g++-4.9 python setup.py build
 
 ## Testing
 
-You can test the library once installed using unit test. In particular,
+You can test the library once installed using `unittest`. In particular,
 run the following commands:
 
 ```bash

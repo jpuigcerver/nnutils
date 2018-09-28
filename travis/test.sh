@@ -2,8 +2,8 @@
 set -e;
 
 # Test module in the build directory.
-cd build;
-make test;
+#cd build;
+#make test;
 
 # Test module installed via pip.
 cd "$(mktemp -d)";
