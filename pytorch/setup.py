@@ -14,12 +14,17 @@ if CC is not None:
     extra_compile_args["nvcc"].append("-ccbin=" + CC)
 
 
-include_dirs = [os.path.dirname(os.path.realpath(__file__)) + "/.."]
+include_dirs = [os.path.dirname(os.path.realpath(__file__)) + "/src"]
 
 headers = [
     "src/adaptive_avgpool_2d.h",
     "src/adaptive_maxpool_2d.h",
     "src/mask_image_from_size.h",
+    "src/nnutils/adaptive_pool.h",
+    "src/nnutils/utils.h",
+    "src/nnutils/cpu/adaptive_avgpool_2d.h",
+    "src/nnutils/cpu/adaptive_maxpool_2d.h",
+    "src/nnutils/cpu/mask_image_from_size.h",
 ]
 
 sources = [
@@ -39,6 +44,12 @@ if torch.cuda.is_available():
         "src/gpu/mask_image_from_size.cu",
     ]
 
+    headers += [
+        "src/nnutils/gpu/adaptive_avgpool_2d.h",
+        "src/nnutils/gpu/adaptive_maxpool_2d.h",
+        "src/nnutils/gpu/mask_image_from_size.h",
+    ]
+
     Extension = CUDAExtension
 
     extra_compile_args["cxx"].append("-DWITH_CUDA")
@@ -47,10 +58,16 @@ else:
     Extension = CppExtension
 
 
+with open("README.md", "r") as fh:
+        long_description = fh.read()
+
+
 setup(
     name="nnutils_pytorch",
     version="0.2",
     description="PyTorch bindings of the nnutils library",
+    long_description=long_description,
+    long_description_content_type="text/markdown",
     url="https://github.com/jpuigcerver/nnutils",
     author="Joan Puigcerver",
     author_email="joapuipe@gmail.com",
@@ -66,7 +83,7 @@ setup(
     ],
     cmdclass={"build_ext": BuildExtension},
     classifiers=[
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
         "Intended Audience :: Education",
         "Intended Audience :: Science/Research",
