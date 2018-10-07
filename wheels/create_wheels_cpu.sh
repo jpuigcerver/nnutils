@@ -6,8 +6,6 @@ SOURCE_DIR=$(cd $SDIR/.. && pwd);
 
 if [ "$DOCKER" != 1 ]; then
   cd $SDIR;
-  rm -rf /tmp/nnutils/wheels/cpu;
-  mkdir -p /tmp/nnutils/wheels/cpu;
   docker build --build-arg BASE_IMAGE=ubuntu:16.04 \
 	 -t nnutils:cpu-base -f Dockerfile .;
   docker build -t nnutils:cpu -f Dockerfile-cpu .;
@@ -25,39 +23,51 @@ cp -r /host/src /tmp/src;
 cd /tmp/src;
 git status;
 
-PYTHON_VERSIONS=(python2.7 python3.5 python3.6);
-PYTHON_NUMBERS=(27 35 36);
+PYTHON_VERSIONS=(
+  python2.7
+  python3.5
+  python3.6
+  python3.7
+);
+PYTHON_NUMBERS=(
+  27
+  35
+  36
+  37
+);
+PYTHON_SUFFIX=(
+  cp27-cp27mu-linux_x86_64.whl
+  cp35-cp35m-linux_x86_64.whl
+  cp36-cp36m-linux_x86_64.whl
+  cp37-cp37m-linux_x86_64.whl
+);
 for i in $(seq ${#PYTHON_VERSIONS[@]}); do
   export PYTHON=${PYTHON_VERSIONS[i - 1]}
   export PYV=${PYTHON_NUMBERS[i - 1]};
-  source "/py${PYV}-cpu/bin/activate";
-
-  mkdir /tmp/src/build-py$PYV-cpu;
-  cd /tmp/src/build-py$PYV-cpu;
-  cmake -DWITH_CUDA=OFF -DCMAKE_BUILD_TYPE=RELEASE ..;
-  make;
-  cd pytorch;
-  python setup.py bdist_wheel;
-  cp dist/*.whl /host/tmp/nnutils/wheels/cpu;
-
-  # Install wheel.
-  pip install $(find dist/ -name "*.whl");
-
-  # Move to the tmp directory to ensure that nothing gets imported from the
-  # build directory.
-  cd /tmp;
-
-  # Test installed module.
-  python -m unittest nnutils_pytorch.mask_image_from_size_test;
-  python -m unittest nnutils_pytorch.adaptive_avgpool_2d_test;
-  python -m unittest nnutils_pytorch.adaptive_maxpool_2d_test;
-
-  deactivate;
-  cd /;
+  ODIR=/host/tmp/nnutils/whl/cpu;
+  mkdir -p "$ODIR";
+  if [ $(find "$ODIR" -name "*-${PYTHON_SUFFIX[i-1]}" | wc -l) -eq 0 ]; then
+    source "/py${PYV}-cpu/bin/activate";
+    cd /tmp/src/pytorch;
+    echo "=== Building for $PYTHON-cpu ==="
+    python setup.py bdist_wheel;
+    whl=$(find dist/ -name "*${PYTHON_SUFFIX[i-1]}");
+    # Install nnutils wheel.
+    pip install "$whl";
+    # Move to the tmp directory to ensure that nothing gets imported from the
+    # build directory.
+    cp "$whl" "$ODIR";
+    cd /tmp;
+    # Test installed module.
+    python -m unittest nnutils_pytorch.mask_image_from_size_test;
+    python -m unittest nnutils_pytorch.adaptive_avgpool_2d_test;
+    python -m unittest nnutils_pytorch.adaptive_maxpool_2d_test;
+    deactivate;
+  fi;
 done;
 
 echo "";
 echo "";
 echo "========================================================="
-echo "== Python wheels located at /tmp/nnutils/wheels/cpu    =="
+echo "== Python wheels located at /tmp/nnutils/whl/cpu       =="
 echo "========================================================="

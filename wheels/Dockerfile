@@ -10,52 +10,29 @@ RUN apt-get update --fix-missing && \
       build-essential \
       ca-certificates \
       git \
+      wget \
       libssl-dev \
-      software-properties-common
-
-# Install CMake3
-RUN add-apt-repository -y ppa:george-edison55/cmake-3.x && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends \
-      cmake
-
-# Extra repositories
-RUN add-apt-repository -y ppa:deadsnakes/ppa && \
+      software-properties-common && \
+    add-apt-repository -y ppa:deadsnakes/ppa && \
     apt-get update
 
-# Install Python 2.7
-RUN apt-get install -y --no-install-recommends \
-    libpython2.7 \
-    libpython2.7-dev \
-    libpython2.7-minimal \
-    libpython2.7-stdlib \
-    python2.7-minimal
+# Install Python
+RUN \
+for py in 2.7 3.5 3.6 3.7; do \
+  apt-get install -y --no-install-recommends \
+    libpython$py \
+    libpython$py-dev \
+    libpython$py-minimal \
+    libpython$py-stdlib \
+    python$py-minimal; \
+done; \
+apt-get install -y --no-install-recommends python3.7-distutils;
 
-# Install Python 3.5
-RUN apt-get install -y --no-install-recommends \
-      libpython3.5 \
-      libpython3.5-dev \
-      libpython3.5-minimal \
-      libpython3.5-stdlib \
-      python3.5-minimal
-
-# Install Python 3.6
-RUN apt-get install -y --no-install-recommends \
-      libpython3.6 \
-      libpython3.6-dev \
-      libpython3.6-minimal \
-      libpython3.6-stdlib \
-      python3.6-minimal
-
-# Install pip
-RUN apt-get install -y --no-install-recommends \
-    python-pip \
-    python3-pip
-
-# Upgrade pip
-RUN pip install --upgrade pip && \
-    pip3 install --upgrade pip
-
-# Install virtualenv
-RUN pip2 install virtualenv && \
-    pip3 install virtualenv
+# Install pip and virtualenv
+RUN \
+for py in python3.6; do \
+  wget https://bootstrap.pypa.io/ez_setup.py -O - | $py && \
+  easy_install pip && \
+  $py -m pip install -U pip && \
+  $py -m pip install virtualenv; \
+done;

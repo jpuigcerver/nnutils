@@ -64,7 +64,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="nnutils_pytorch",
-    version="0.2",
+    version="0.2.post1",
     description="PyTorch bindings of the nnutils library",
     long_description=long_description,
     long_description_content_type="text/markdown",
