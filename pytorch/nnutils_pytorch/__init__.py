@@ -1,6 +1,6 @@
 import torch
 
-import _nnutils_pytorch
+import nnutils_pytorch._C as _nnutils_pytorch
 
 
 class _AdaptiveAvgpool2d(torch.autograd.Function):
