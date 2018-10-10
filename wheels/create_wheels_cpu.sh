@@ -33,7 +33,7 @@ export PYTHON_VERSIONS=(
 );
 
 # Install PyTorch
-./wheels/install_pytorch_cpu.sh;
+./wheels/install_pytorch_cpu.sh "${PYTHON_VERSIONS[@]}";
 
 cd /tmp/src/pytorch;
 for py in "${PYTHON_VERSIONS[@]}"; do

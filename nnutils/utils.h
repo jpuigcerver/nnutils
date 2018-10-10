@@ -31,15 +31,7 @@ inline const T& pixv(const T* dst, const Int p, const Int y, const Int x) {
 }  // namespace nnutils
 #endif  // __cplusplus
 
-#if defined(CUDA_VERSION) && CUDA_VERSION < 8000
-#warning "CUDA_VERSION < 8000"
-#endif
-
-#if defined(__HIP_PLATFORM_HCC__)
-#warning "defined __HIP_PLATFORM_HCC__"
-#endif
-
-#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ < 600 || CUDA_VERSION < 8000)
+#if defined(__CUDA_ARCH__) && (__CUDA_ARCH__ < 600 || __CUDACC_VER_MAJOR__ < 8)
 // from CUDA C Programmic Guide
 static inline  __device__  void atomicAdd(double *address, double val) {
   unsigned long long int* address_as_ull = (unsigned long long int*)address;
@@ -55,7 +47,7 @@ static inline  __device__  void atomicAdd(double *address, double val) {
     // Note: uses integer comparison to avoid hang in case of NaN (since NaN != NaN)
   } while (assumed != old);
 }
-#elif !defined(__CUDA_ARCH__) && (CUDA_VERSION < 8000) || defined(__HIP_PLATFORM_HCC__)
+#elif !defined(__CUDA_ARCH__) && (__CUDACC_VER_MAJOR__ < 8) || defined(__HIP_PLATFORM_HCC__)
 #if defined(__HIP_PLATFORM_HCC__) && __hcc_workweek__ < 18312
 // This needs to be defined for the host side pass
 static inline  __device__  void atomicAdd(double *address, double val) { }
