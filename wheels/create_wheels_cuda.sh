@@ -36,16 +36,33 @@ yum install -y zip openssl;
 cp -r /host/src /tmp/src;
 cd /tmp/src;
 
+export PYTHON_VERSIONS=(
+  cp27-cp27mu
+  cp35-cp35m
+  cp36-cp36m
+  cp37-cp37m
+);
+
 # Detect CUDA version
 export CUDA_VERSION=$(nvcc --version|tail -n1|cut -f5 -d" "|cut -f1 -d",");
 export CUDA_VERSION_S="cu$(echo $CUDA_VERSION | tr -d .)";
 echo "CUDA $CUDA_VERSION Detected";
 
+if [[ "$CUDA_VERSION" == "8.0" ]]; then
+  export CUDA_ARCH_LIST="3.5;5.0+PTX;5.2;6.0";
+elif [[ "$CUDA_VERSION" == "9.0" ]]; then
+  export CUDA_ARCH_LIST="3.5;5.0+PTX;5.2;6.0;7.0";
+elif [[ "$CUDA_VERSION" == "9.2" ]]; then
+  export CUDA_ARCH_LIST="3.5;5.0+PTX;5.2;6.0;6.1;7.0";
+else
+  exit 1;
+fi;
+
 # Install PyTorch
-./wheels/install_pytorch_cuda.sh;
+./wheels/install_pytorch_cuda.sh "${PYTHON_VERSIONS[@]}";
 
 cd /tmp/src/pytorch;
-for py in cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m; do
+for py in "${PYTHON_VERSIONS[@]}"; do
   echo "=== Building wheel for $py with CUDA ${CUDA_VERSION} ===";
   export PYTHON=/opt/python/$py/bin/python;
   $PYTHON setup.py clean;
@@ -59,7 +76,7 @@ echo "=== Fixing wheels with CUDA ${CUDA_VERSION} ===";
   "/usr/local/cuda-${CUDA_VERSION}/lib64/libcudart.so.${CUDA_VERSION}";
 
 rm -rf /opt/rh /usr/local/cuda*;
-for py in cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m; do
+for py in "${PYTHON_VERSIONS[@]}"; do
   echo "=== Testing wheel for $py with CUDA ${CUDA_VERSION} ===";
   export PYTHON=/opt/python/$py/bin/python;
   cd /tmp;

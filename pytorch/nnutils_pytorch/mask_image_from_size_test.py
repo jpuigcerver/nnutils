@@ -32,9 +32,7 @@ class MaskImageFromSizeTest(unittest.TestCase):
         self.convert(cuda, ttype)
         x = self.x.detach().requires_grad_()
         cy = self.cy.detach()
-        y = mask_image_from_size(
-            batch_input=x, batch_sizes=self.xs, mask_value=99
-        )
+        y = mask_image_from_size(batch_input=x, batch_sizes=self.xs, mask_value=99)
         # Check forward
         for i, (xi, yi, s) in enumerate(zip(self.x, y.data, self.xs)):
             # Check non-masked area
@@ -43,10 +41,8 @@ class MaskImageFromSizeTest(unittest.TestCase):
                 0, d, msg="Sample {} failed in the non-masked area".format(i)
             )
             # Check masked area
-            d1 = torch.sum(yi[:, s[0]:, :] != 99) if s[0] < self.x.size(
-                2) else 0
-            d2 = torch.sum(yi[:, :, s[1]:] != 99) if s[1] < self.x.size(
-                3) else 0
+            d1 = torch.sum(yi[:, s[0] :, :] != 99) if s[0] < self.x.size(2) else 0
+            d2 = torch.sum(yi[:, :, s[1] :] != 99) if s[1] < self.x.size(3) else 0
             self.assertEqual(
                 0, d1 + d2, msg="Sample {} failed in the masked area".format(i)
             )
@@ -60,8 +56,8 @@ class MaskImageFromSizeTest(unittest.TestCase):
                 0, d, msg="Sample {} failed in the non-masked area".format(i)
             )
             # Check masked area
-            d1 = torch.sum(xi[:, s[0]:, :] != 0) if s[0] < self.x.size(2) else 0
-            d2 = torch.sum(xi[:, :, s[1]:] != 0) if s[1] < self.x.size(3) else 0
+            d1 = torch.sum(xi[:, s[0] :, :] != 0) if s[0] < self.x.size(2) else 0
+            d2 = torch.sum(xi[:, :, s[1] :] != 0) if s[1] < self.x.size(3) else 0
             self.assertEqual(
                 0, d1 + d2, msg="Sample {} failed in the masked area".format(i)
             )

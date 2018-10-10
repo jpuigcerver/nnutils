@@ -1,12 +1,9 @@
 #!/bin/bash
 set -e;
 
-PYTHON_VERSIONS=(
-  cp27-cp27mu
-  cp35-cp35m
-  cp36-cp36m
-  cp37-cp37m
-);
+[[ -z "$PYTHON_VERSIONS" && -z "${PYTHON_VERSIONS[*]}" ]] &&
+echo "Missing environment variable PYTHON_VERSIONS" >&2 && exit 1;
+
 PYTORCH_WHEELS=(
   http://download.pytorch.org/whl/cpu/torch-0.4.1-cp27-cp27mu-linux_x86_64.whl
   http://download.pytorch.org/whl/cpu/torch-0.4.1-cp35-cp35m-linux_x86_64.whl

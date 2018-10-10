@@ -29,10 +29,7 @@ class _AdaptiveAvgpool2d(torch.autograd.Function):
         ctx.output_sizes = output_sizes
         batch_output = batch_input.new(N, C, out_h, out_w).zero_()
         _nnutils_pytorch.adaptive_avgpool_2d_fwd(
-            x=batch_input,
-            y=batch_output,
-            xs=batch_sizes,
-            ys=output_sizes
+            x=batch_input, y=batch_output, xs=batch_sizes, ys=output_sizes
         )
         return batch_output
 
@@ -44,10 +41,7 @@ class _AdaptiveAvgpool2d(torch.autograd.Function):
         N, C, _, _ = grad_output.size()
         grad_input = grad_output.data.new(N, C, ctx.inp_h, ctx.inp_w).zero_()
         _nnutils_pytorch.adaptive_avgpool_2d_bwd(
-            grad_y=grad_output,
-            grad_x=grad_input,
-            xs=batch_sizes,
-            ys=ctx.output_sizes
+            grad_y=grad_output, grad_x=grad_input, xs=batch_sizes, ys=ctx.output_sizes
         )
         return grad_input, None, None, None
 
@@ -73,16 +67,12 @@ class _AdaptiveMaxpool2d(torch.autograd.Function):
             out_h = inp_h if out_h is None else out_h
             out_w = inp_w if out_w is None else out_w
         else:
-            output_sizes=None
+            output_sizes = None
 
         batch_output = batch_input.new(N, C, out_h, out_w).zero_()
         index = batch_sizes.new(N, C, out_h, out_w)
         _nnutils_pytorch.adaptive_maxpool_2d_fwd(
-            x=batch_input,
-            y=batch_output,
-            index=index,
-            xs=batch_sizes,
-            ys=output_sizes,
+            x=batch_input, y=batch_output, index=index, xs=batch_sizes, ys=output_sizes
         )
         ctx.output_sizes = output_sizes
         ctx.save_for_backward(index)
@@ -97,10 +87,7 @@ class _AdaptiveMaxpool2d(torch.autograd.Function):
         N, C, _, _ = grad_output.size()
         grad_input = grad_output.new(N, C, ctx.inp_h, ctx.inp_w).zero_()
         _nnutils_pytorch.adaptive_maxpool_2d_bwd(
-            grad_y=grad_output,
-            grad_x=grad_input,
-            index=index,
-            ys=ctx.output_sizes,
+            grad_y=grad_output, grad_x=grad_input, index=index, ys=ctx.output_sizes
         )
         return grad_input, None, None, None
 
@@ -113,9 +100,8 @@ class _MaskImageFromSizeFunction(torch.autograd.Function):
         ctx.inplace = inplace
         batch_output = batch_input if ctx.inplace else batch_input.clone()
         _nnutils_pytorch.mask_image_from_size(
-            x=batch_output.contiguous(),
-            xs=batch_sizes.contiguous(),
-            mask=mask_value)
+            x=batch_output.contiguous(), xs=batch_sizes.contiguous(), mask=mask_value
+        )
         return batch_output
 
     @classmethod
@@ -123,9 +109,8 @@ class _MaskImageFromSizeFunction(torch.autograd.Function):
         batch_sizes, = ctx.saved_tensors
         grad_input = grad_output if ctx.inplace else grad_output.clone()
         _nnutils_pytorch.mask_image_from_size(
-            x=grad_input.contiguous(),
-            xs=batch_sizes,
-            mask=0)
+            x=grad_input.contiguous(), xs=batch_sizes, mask=0
+        )
         return grad_input, None, None, None
 
 
@@ -155,7 +140,7 @@ def adaptive_avgpool_2d(batch_input, output_sizes, batch_sizes=None):
 
 
 def adaptive_maxpool_2d(
-        batch_input, output_sizes, batch_sizes=None, return_indices=False
+    batch_input, output_sizes, batch_sizes=None, return_indices=False
 ):
     """Applies a 2D adaptive max pooling over an input signal composed of
     several input planes.
@@ -209,4 +194,5 @@ def mask_image_from_size(batch_input, batch_sizes=None, mask_value=0, inplace=Fa
         return batch_input
     else:
         return _MaskImageFromSizeFunction.apply(
-            batch_input, batch_sizes, mask_value, inplace)
+            batch_input, batch_sizes, mask_value, inplace
+        )

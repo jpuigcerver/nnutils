@@ -25,11 +25,18 @@ set -ex;
 cp -r /host/src /tmp/src;
 cd /tmp/src;
 
+export PYTHON_VERSIONS=(
+  cp27-cp27mu
+  cp35-cp35m
+  cp36-cp36m
+  cp37-cp37m
+);
+
 # Install PyTorch
 ./wheels/install_pytorch_cpu.sh;
 
 cd /tmp/src/pytorch;
-for py in cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m; do
+for py in "${PYTHON_VERSIONS[@]}"; do
   echo "=== Building for $py with CPU-only ==="
   export PYTHON=/opt/python/$py/bin/python;
   $PYTHON setup.py clean;
@@ -39,7 +46,7 @@ done;
 # No need to fix wheels for CPU
 
 rm -rf /opt/rh;
-for py in cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m; do
+for py in "${PYTHON_VERSIONS[@]}"; do
   echo "=== Testing wheel for $py with CPU-only ===";
   export PYTHON=/opt/python/$py/bin/python;
   cd /tmp;

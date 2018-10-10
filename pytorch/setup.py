@@ -1,4 +1,5 @@
 import os
+import re
 import torch
 from setuptools import setup, find_packages
 from torch.utils.cpp_extension import BuildExtension, CppExtension, CUDAExtension
@@ -12,6 +13,33 @@ extra_compile_args = {
 CC = os.getenv("CC", None)
 if CC is not None:
     extra_compile_args["nvcc"].append("-ccbin=" + CC)
+
+
+def get_cuda_compile_archs(nvcc_flags=None):
+    """Get the target CUDA architectures from CUDA_ARCH_LIST env variable"""
+    if nvcc_flags is None:
+        nvcc_flags = []
+
+    CUDA_ARCH_LIST = os.getenv("CUDA_ARCH_LIST", None)
+    if CUDA_ARCH_LIST is not None:
+        for arch in CUDA_ARCH_LIST.split(";"):
+            m = re.match(r"^([0-9.]+)(?:\(([0-9.]+)\))?(\+PTX)?$", arch)
+            assert m, "Wrong architecture list: %s" % CUDA_ARCH_LIST
+            cod_arch = m.group(1).replace(".", "")
+            com_arch = m.group(2).replace(".", "") if m.group(2) else cod_arch
+            ptx = True if m.group(3) else False
+            nvcc_flags.extend(
+                ["-gencode", "arch=compute_{},code=sm_{}".format(com_arch, cod_arch)]
+            )
+            if ptx:
+                nvcc_flags.extend(
+                    [
+                        "-gencode",
+                        "arch=compute_{},code=compute_{}".format(com_arch, cod_arch),
+                    ]
+                )
+
+    return nvcc_flags
 
 
 include_dirs = [os.path.dirname(os.path.realpath(__file__)) + "/src"]
@@ -49,22 +77,22 @@ if torch.cuda.is_available():
         "src/nnutils/gpu/adaptive_maxpool_2d.h",
         "src/nnutils/gpu/mask_image_from_size.h",
     ]
-
     Extension = CUDAExtension
 
     extra_compile_args["cxx"].append("-DWITH_CUDA")
     extra_compile_args["nvcc"].append("-DWITH_CUDA")
+    extra_compile_args["nvcc"].extend(get_cuda_compile_archs())
 else:
     Extension = CppExtension
 
 
 with open("README.md", "r") as fh:
-        long_description = fh.read()
+    long_description = fh.read()
 
 
 setup(
     name="nnutils_pytorch",
-    version="0.2.1",
+    version="0.2.1.post1",
     description="PyTorch bindings of the nnutils library",
     long_description=long_description,
     long_description_content_type="text/markdown",
