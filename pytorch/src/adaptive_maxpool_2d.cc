@@ -6,7 +6,7 @@ namespace pytorch {
 
 void adaptive_maxpool_2d_fwd(
     const at::Tensor& x, at::Tensor& y, at::Tensor& index,
-    const at::optional<at::Tensor>& xs, const at::optional<at::Tensor>& ys) {
+    const c10::optional<at::Tensor>& xs, const c10::optional<at::Tensor>& ys) {
   // Check that all tensors are in the same device
   CHECK_SAME_DEVICE(x, y);
   CHECK_SAME_DEVICE(x, index);
@@ -62,10 +62,10 @@ void adaptive_maxpool_2d_fwd(
 
   switch (x.device().type()) {
     DEFINE_SWITCH_CASE_OP(
-        at::Device::Type::CPU, "CPU", cpu::AdaptiveMaxpool2dLauncher());
+        c10::Device::Type::CPU, "CPU", cpu::AdaptiveMaxpool2dLauncher());
     #ifdef WITH_CUDA
     DEFINE_SWITCH_CASE_OP(
-        at::Device::Type::CUDA, "CUDA", gpu::AdaptiveMaxpool2dLauncher());
+        c10::Device::Type::CUDA, "CUDA", gpu::AdaptiveMaxpool2dLauncher());
     #endif
     default:
       AT_ERROR("adaptive_maxpool_2d_fwd not implemented for the given device type");
@@ -76,7 +76,7 @@ void adaptive_maxpool_2d_fwd(
 
 void adaptive_maxpool_2d_bwd(
     const at::Tensor& grad_y, at::Tensor& grad_x, const at::Tensor& index,
-    const at::optional<at::Tensor>& ys) {
+    const c10::optional<at::Tensor>& ys) {
   // Check that all tensors are in the same device
   CHECK_SAME_DEVICE(index, grad_x);
   CHECK_SAME_DEVICE(index, grad_y);
@@ -123,10 +123,10 @@ void adaptive_maxpool_2d_bwd(
 
   switch (grad_y.device().type()) {
     DEFINE_SWITCH_CASE_OP(
-        at::Device::Type::CPU, "CPU", cpu::AdaptiveMaxpool2dLauncher());
+        c10::Device::Type::CPU, "CPU", cpu::AdaptiveMaxpool2dLauncher());
     #ifdef WITH_CUDA
     DEFINE_SWITCH_CASE_OP(
-        at::Device::Type::CUDA, "CUDA", gpu::AdaptiveMaxpool2dLauncher());
+        c10::Device::Type::CUDA, "CUDA", gpu::AdaptiveMaxpool2dLauncher());
     #endif
     default:
       AT_ERROR("adaptive_maxpool_2d_bwd not implemented for the given device type");

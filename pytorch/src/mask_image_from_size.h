@@ -1,7 +1,8 @@
 #ifndef NNUTILS_PYTORCH_MASK_IMAGE_FROM_SIZE_H_
 #define NNUTILS_PYTORCH_MASK_IMAGE_FROM_SIZE_H_
 
-namespace at { class Device; class Tensor; }
+namespace at { class Tensor; }
+namespace c10 { class Device; }
 namespace pybind11 { class object; }
 
 namespace nnutils {
@@ -14,7 +15,7 @@ public:                                                                      \
 template <typename T>                                                        \
 void operator()(                                                             \
     const long int N, const long int C, const long int H, const long int W,  \
-    const long int* xs, T* x, const T& m, const at::Device& device);         \
+    const long int* xs, T* x, const T& m, const c10::Device& device);        \
 }
 
 namespace cpu { DECLARE_CLASS; }  // namespace cpu

@@ -92,7 +92,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name="nnutils_pytorch",
-    version="0.2.1.post1",
+    version="0.3.0",
     description="PyTorch bindings of the nnutils library",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -128,6 +128,6 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    setup_requires=["pybind11", "torch>=0.4.1"],
-    install_requires=["pybind11", "torch>=0.4.1"],
+    setup_requires=["pybind11", "torch>=1.0.0"],
+    install_requires=["pybind11", "torch>=1.0.0"],
 )

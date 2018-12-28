@@ -39,10 +39,10 @@ void mask_image_from_size(
 
   switch (x.device().type()) {
     DEFINE_SWITCH_CASE_OP(
-        at::Device::Type::CPU, "CPU", cpu::MaskImageFromSizeLauncher());
+        c10::Device::Type::CPU, "CPU", cpu::MaskImageFromSizeLauncher());
     #ifdef WITH_CUDA
     DEFINE_SWITCH_CASE_OP(
-        at::Device::Type::CUDA, "CUDA", gpu::MaskImageFromSizeLauncher());
+        c10::Device::Type::CUDA, "CUDA", gpu::MaskImageFromSizeLauncher());
     #endif
     default:
       AT_ERROR("mask_image_from_size not implemented for the given device type");

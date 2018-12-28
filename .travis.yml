@@ -1,5 +1,5 @@
-dist: trusty
-sudo: false
+dist: xenial
+sudo: true
 
 language: python
 
@@ -15,9 +15,10 @@ addons:
       - g++-4.9
 
 python:
-  - "2.7"
-  - "3.5"
-  - "3.6"
+  - 2.7
+  - 3.5
+  - 3.6
+  - 3.7
 
 env:
   global:
@@ -48,7 +49,8 @@ matrix:
       env: CC=gcc-6 CXX=g++-6
 
 before_install:
-  - travis/install_packages.sh
+  - python -m pip install -U pip
+  - python -m pip install --progress-bar off pybind11
   - travis/install_pytorch.sh
 
 script:

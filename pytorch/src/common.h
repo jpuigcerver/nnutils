@@ -1,7 +1,7 @@
 #ifndef NNUTILS_PYTORCH_COMMON_H_
 #define NNUTILS_PYTORCH_COMMON_H_
 
-#include <torch/torch.h>
+#include <torch/extension.h>
 
 #include <string>
 

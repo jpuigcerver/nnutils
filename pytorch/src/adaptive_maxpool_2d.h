@@ -2,10 +2,12 @@
 #define NNUTILS_PYTORCH_ADAPTIVE_MAXPOOL_2D_H_
 
 namespace at {
-class Device;
 class Tensor;
-template <typename T> class optional;
 }  // namespace at
+namespace c10 {
+class Device;
+template <typename T> class optional;
+}  // namespace c10
 namespace pybind11 { class object; }
 
 namespace nnutils {
@@ -21,7 +23,7 @@ public:                                                                     \
       const long int iH, const long int iW,                                 \
       const long int oH, const long int oW,                                 \
       const long int* xs, const long int* ys,                               \
-      const T* x, T* y, long int* index, const at::Device& device);         \
+      const T* x, T* y, long int* index, const c10::Device& device);        \
                                                                             \
   template <typename T>                                                     \
   void Backward(                                                            \
@@ -29,7 +31,7 @@ public:                                                                     \
       const long int iH, const long int iW,                                 \
       const long int oH, const long int oW,                                 \
       const long int* index, const long int* out_sizes,                     \
-      const T* g_output, T* g_input, const at::Device& device);             \
+      const T* g_output, T* g_input, const c10::Device& device);            \
 }
 
 namespace cpu { DECLARE_CLASS; }  // namespace cpu
@@ -39,11 +41,11 @@ namespace gpu { DECLARE_CLASS; }  // namespace gpu
 
 void adaptive_maxpool_2d_fwd(
     const at::Tensor& x, at::Tensor& y, at::Tensor& index,
-    const at::optional<at::Tensor>& xs, const at::optional<at::Tensor>& ys);
+    const c10::optional<at::Tensor>& xs, const c10::optional<at::Tensor>& ys);
 
 void adaptive_maxpool_2d_bwd(
     const at::Tensor& grad_y, at::Tensor& grad_x, const at::Tensor& index,
-    const at::optional<at::Tensor>& ys);
+    const c10::optional<at::Tensor>& ys);
 
 }  // namespace pytorch
 }  // namespace nnutils

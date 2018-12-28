@@ -6,7 +6,7 @@ namespace pytorch {
 
 void adaptive_avgpool_2d_fwd(
     const at::Tensor& x, at::Tensor& y,
-    const at::optional<at::Tensor>& xs, const at::optional<at::Tensor>& ys) {
+    const c10::optional<at::Tensor>& xs, const c10::optional<at::Tensor>& ys) {
   CHECK_SAME_DEVICE(x, y);
   CHECK_CONTIGUOUS(x);
   CHECK_NDIM(x, 4);
@@ -51,10 +51,10 @@ void adaptive_avgpool_2d_fwd(
 
   switch (x.device().type()) {
     DEFINE_SWITCH_CASE_OP(
-        at::Device::Type::CPU, "CPU", cpu::AdaptiveAvgpool2dLauncher());
+        c10::Device::Type::CPU, "CPU", cpu::AdaptiveAvgpool2dLauncher());
     #ifdef WITH_CUDA
     DEFINE_SWITCH_CASE_OP(
-        at::Device::Type::CUDA, "CUDA", gpu::AdaptiveAvgpool2dLauncher());
+        c10::Device::Type::CUDA, "CUDA", gpu::AdaptiveAvgpool2dLauncher());
     #endif
     default:
       AT_ERROR("adaptive_avgpool_2d_fwd not implemented for the given device type");
@@ -65,7 +65,7 @@ void adaptive_avgpool_2d_fwd(
 
 void adaptive_avgpool_2d_bwd(
     const at::Tensor& grad_y, at::Tensor& grad_x,
-    const at::optional<at::Tensor>& xs, const at::optional<at::Tensor>& ys) {
+    const c10::optional<at::Tensor>& xs, const c10::optional<at::Tensor>& ys) {
   CHECK_SAME_DEVICE(grad_x, grad_y);
   CHECK_CONTIGUOUS(grad_y);
   CHECK_NDIM(grad_x, 4);
@@ -111,10 +111,10 @@ void adaptive_avgpool_2d_bwd(
 
   switch (grad_y.device().type()) {
     DEFINE_SWITCH_CASE_OP(
-        at::Device::Type::CPU, "CPU", cpu::AdaptiveAvgpool2dLauncher());
+        c10::Device::Type::CPU, "CPU", cpu::AdaptiveAvgpool2dLauncher());
     #ifdef WITH_CUDA
     DEFINE_SWITCH_CASE_OP(
-        at::Device::Type::CUDA, "CUDA", gpu::AdaptiveAvgpool2dLauncher());
+        c10::Device::Type::CUDA, "CUDA", gpu::AdaptiveAvgpool2dLauncher());
     #endif
     default:
       AT_ERROR("adaptive_avgpool_2d_bwd not implemented for the given device type");

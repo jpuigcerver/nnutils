@@ -1,4 +1,4 @@
-#include <torch/torch.h>
+#include <torch/extension.h>
 
 #include "./adaptive_avgpool_2d.h"
 #include "./adaptive_maxpool_2d.h"
