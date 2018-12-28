@@ -25,6 +25,8 @@ set -ex;
 cp -r /host/src /tmp/src;
 cd /tmp/src;
 
+rm -rf /tmp/src/pytorch/build /tmp/src/pytorch/dist;
+
 export PYTHON_VERSIONS=(
   cp27-cp27mu
   cp35-cp35m
@@ -61,7 +63,13 @@ done;
 set +x;
 ODIR="/host/tmp/nnutils_pytorch/whl/cpu";
 mkdir -p "$ODIR";
-cp /tmp/src/pytorch/dist/*.whl "$ODIR/";
+readarray -t wheels < <(find /tmp/src/pytorch/dist -name "*.whl");
+for whl in "${wheels[@]}"; do
+  whl_name="$(basename "$whl")";
+  whl_name="${whl_name/-linux/-manylinux1}";
+  cp "$whl" "${ODIR}/${whl_name}";
+done;
+
 echo "================================================================";
-printf "=== %-56s ===\n" "Copied wheels to ${ODIR:5}";
+printf "=== %-56s ===\n" "Copied ${#wheels[@]} wheels to ${ODIR:5}";
 echo "================================================================";

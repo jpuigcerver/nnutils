@@ -10,9 +10,9 @@ SOURCE_DIR=$(cd $SDIR/.. && pwd);
 
 if [ ! -f /.dockerenv ]; then
   DOCKER_IMAGES=(
-#    soumith/manylinux-cuda80
-#    soumith/manylinux-cuda90
-    soumith/manylinux-cuda92
+    soumith/manylinux-cuda80
+    soumith/manylinux-cuda90
+    soumith/manylinux-cuda100
   );
   for image in "${DOCKER_IMAGES[@]}"; do
     docker run --runtime=nvidia --rm --log-driver none \
@@ -36,6 +36,8 @@ yum install -y zip openssl;
 cp -r /host/src /tmp/src;
 cd /tmp/src;
 
+rm -rf /tmp/src/pytorch/build /tmp/src/pytorch/dist;
+
 export PYTHON_VERSIONS=(
   cp27-cp27mu
   cp35-cp35m
@@ -54,6 +56,8 @@ elif [[ "$CUDA_VERSION" == "9.0" ]]; then
   export CUDA_ARCH_LIST="3.5;5.0+PTX;5.2;6.0;7.0";
 elif [[ "$CUDA_VERSION" == "9.2" ]]; then
   export CUDA_ARCH_LIST="3.5;5.0+PTX;5.2;6.0;6.1;7.0";
+elif [[ "$CUDA_VERSION" == "10.0" ]]; then
+  export CUDA_ARCH_LIST="3.5;5.0+PTX;5.2;6.0;6.1;7.0;7.5";
 else
   exit 1;
 fi;
@@ -75,7 +79,13 @@ echo "=== Fixing wheels with CUDA ${CUDA_VERSION} ===";
   "libcudart.so.${CUDA_VERSION}" \
   "/usr/local/cuda-${CUDA_VERSION}/lib64/libcudart.so.${CUDA_VERSION}";
 
-rm -rf /opt/rh /usr/local/cuda*;
+# Remove CUDA, since all dependencies should be included.
+# TODO: pip package of PyTorch 1.0.0 for CUDA 10 is not well built, we
+# need CUDA installed!
+if [ ${CUDA_VERSION} != "10.0" ]; then
+  rm -rf /opt/rh /usr/local/cuda*;
+fi;
+
 for py in "${PYTHON_VERSIONS[@]}"; do
   echo "=== Testing wheel for $py with CUDA ${CUDA_VERSION} ===";
   export PYTHON=/opt/python/$py/bin/python;
@@ -91,7 +101,13 @@ done;
 set +x;
 ODIR="/host/tmp/nnutils_pytorch/whl/${CUDA_VERSION_S}";
 mkdir -p "$ODIR";
-cp /tmp/src/pytorch/dist/*.whl "$ODIR/";
+readarray -t wheels < <(find /tmp/src/pytorch/dist -name "*.whl");
+for whl in "${wheels[@]}"; do
+  whl_name="$(basename "$whl")";
+  whl_name="${whl_name/-linux/-manylinux1}";
+  cp "$whl" "${ODIR}/${whl_name}";
+done;
+
 echo "================================================================";
-printf "=== %-56s ===\n" "Copied wheels to ${ODIR:5}";
+printf "=== %-56s ===\n" "Copied ${#wheels[@]} wheels to ${ODIR:5}";
 echo "================================================================";
