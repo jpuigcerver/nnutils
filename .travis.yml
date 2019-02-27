@@ -24,7 +24,7 @@ env:
   global:
     - GTEST_ROOT="$HOME/.local"
   matrix:
-    - CC=gcc-4.9 CXX=g++-4.9
+    - CC=gcc-4.9 CXX=g++-4.9 TORCH_PIP_PACKAGE=torch
 
 # Add tests with additional compilers
 matrix:
@@ -37,7 +37,7 @@ matrix:
           packages:
             - gcc-5
             - g++-5
-      env: CC=gcc-5 CXX=g++-5
+      env: CC=gcc-5 CXX=g++-5 TORCH_PIP_PACKAGE=torch
     - python: 3.6
       addons:
         apt:
@@ -46,12 +46,18 @@ matrix:
           packages:
             - gcc-6
             - g++-6
-      env: CC=gcc-6 CXX=g++-6
+      env: CC=gcc-6 CXX=g++-6 TORCH_PIP_PACKAGE=torch
+    - python: 3.6
+      env: CC=gcc-4.9 CXX=g++-4.9 TORCH_PIP_PACKAGE="torch==1.0.0"
+    - python: 3.6
+      env: CC=gcc-4.9 CXX=g++-4.9 TORCH_PIP_PACKAGE="torch==1.0.1"
 
 before_install:
-  - python -m pip install -U pip
-  - python -m pip install --progress-bar off pybind11
-  - travis/install_pytorch.sh
+  # Upgrade PIP to latest version, in order to support --progres-bar
+  - pip install -U pip
+  # Install prerequisites.
+  - pip install --progress-bar off -r <(sed -r 's/^torch.*$//g;/^$/d' requirements.txt)
+  - pip install $TORCH_PIP_PACKAGE --progress-bar off
 
 script:
   - travis/build.sh

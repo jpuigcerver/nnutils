@@ -1,3 +1,4 @@
+import io
 import os
 import re
 import torch
@@ -6,8 +7,8 @@ from torch.utils.cpp_extension import BuildExtension, CppExtension, CUDAExtensio
 
 
 extra_compile_args = {
-    "cxx": ["-std=c++11", "-O2", "-fopenmp"],
-    "nvcc": ["-std=c++11", "-O2"],
+    "cxx": ["-std=c++11", "-O3", "-fopenmp"],
+    "nvcc": ["-std=c++11", "-O3", "--compiler-options=-fopenmp"],
 }
 
 CC = os.getenv("CC", None)
@@ -40,6 +41,18 @@ def get_cuda_compile_archs(nvcc_flags=None):
                 )
 
     return nvcc_flags
+
+
+def get_requirements():
+    req_file = os.path.join(os.path.dirname(__file__), "requirements.txt")
+    with io.open(req_file, "r", encoding="utf-8") as f:
+        return [line.strip() for line in f]
+
+
+def get_long_description():
+    readme_file = os.path.join(os.path.dirname(__file__), "README.md")
+    with io.open(readme_file, "r", encoding="utf-8") as f:
+        return f.read()
 
 
 include_dirs = [os.path.dirname(os.path.realpath(__file__)) + "/src"]
@@ -86,13 +99,11 @@ else:
     Extension = CppExtension
 
 
-with open("README.md", "r") as fh:
-    long_description = fh.read()
-
-
+requirements = get_requirements()
+long_description = get_long_description()
 setup(
     name="nnutils_pytorch",
-    version="0.3.0",
+    version="0.3.1",
     description="PyTorch bindings of the nnutils library",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -121,6 +132,7 @@ setup(
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: 3.7",
         "Topic :: Scientific/Engineering",
         "Topic :: Scientific/Engineering :: Artificial Intelligence",
         "Topic :: Scientific/Engineering :: Image Recognition",
@@ -128,6 +140,6 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    setup_requires=["pybind11", "torch>=1.0.0"],
-    install_requires=["pybind11", "torch>=1.0.0"],
+    setup_requires=requirements,
+    install_requires=requirements,
 )
