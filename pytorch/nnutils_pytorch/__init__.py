@@ -109,7 +109,7 @@ class _MaskImageFromSizeFunction(torch.autograd.Function):
         batch_sizes, = ctx.saved_tensors
         grad_input = grad_output if ctx.inplace else grad_output.clone()
         _nnutils_pytorch.mask_image_from_size(
-            x=grad_input.contiguous(), xs=batch_sizes, mask=0
+            x=grad_input.contiguous(), xs=batch_sizes.contiguous(), mask=0
         )
         return grad_input, None, None, None
 

@@ -9,9 +9,9 @@ SOURCE_DIR=$(cd $SDIR/.. && pwd);
 ###########################################
 if [ ! -f /.dockerenv ]; then
   DOCKER_IMAGES=(
-    #soumith/manylinux-cuda80
+    soumith/manylinux-cuda80
     soumith/manylinux-cuda90
-    #soumith/manylinux-cuda100
+    soumith/manylinux-cuda100
   );
   for image in "${DOCKER_IMAGES[@]}"; do
     docker run --runtime=nvidia --rm --log-driver none \
