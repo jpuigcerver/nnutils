@@ -103,7 +103,7 @@ requirements = get_requirements()
 long_description = get_long_description()
 setup(
     name="nnutils_pytorch",
-    version="0.3.1.post1",
+    version="0.4.0",
     description="PyTorch bindings of the nnutils library",
     long_description=long_description,
     long_description_content_type="text/markdown",

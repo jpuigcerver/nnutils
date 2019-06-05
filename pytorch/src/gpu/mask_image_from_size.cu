@@ -1,6 +1,6 @@
 #include <ATen/Context.h>
-#include <c10/Device.h>
-#include <c10/DeviceGuard.h>
+#include <c10/core/Device.h>
+#include <c10/core/DeviceGuard.h>
 #include <nnutils/gpu/mask_image_from_size.h>
 #include <THC/THC.h>
 

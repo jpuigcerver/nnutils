@@ -1,6 +1,6 @@
 #include <ATen/Context.h>
-#include <c10/Device.h>
-#include <c10/DeviceGuard.h>
+#include <c10/core/Device.h>
+#include <c10/core/DeviceGuard.h>
 #include <nnutils/gpu/adaptive_maxpool_2d.h>
 #include <THC/THC.h>
 

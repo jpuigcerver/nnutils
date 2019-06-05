@@ -1,4 +1,4 @@
-#include <c10/Device.h>
+#include <c10/core/Device.h>
 #include <nnutils/cpu/mask_image_from_size.h>
 
 #include <cstdint>

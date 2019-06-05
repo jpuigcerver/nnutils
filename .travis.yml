@@ -47,10 +47,10 @@ matrix:
             - gcc-6
             - g++-6
       env: CC=gcc-6 CXX=g++-6 TORCH_PIP_PACKAGE=torch
-    - python: 3.6
-      env: CC=gcc-4.9 CXX=g++-4.9 TORCH_PIP_PACKAGE="torch==1.0.0"
-    - python: 3.6
-      env: CC=gcc-4.9 CXX=g++-4.9 TORCH_PIP_PACKAGE="torch==1.0.1"
+#     - python: 3.6
+#       env: CC=gcc-4.9 CXX=g++-4.9 TORCH_PIP_PACKAGE="torch==1.0.0"
+#     - python: 3.6
+#       env: CC=gcc-4.9 CXX=g++-4.9 TORCH_PIP_PACKAGE="torch==1.0.1"
 
 before_install:
   # Upgrade PIP to latest version, in order to support --progres-bar
