@@ -69,7 +69,7 @@ top-left corner.
 ## Requirements
 
 - Python: 2.7, 3.5, 3.6 or 3.7 (tested with version 2.7, 3.5, 3.6 and 3.7).
-- [PyTorch](http://pytorch.org/) >= 1.1.0 (tested with version 1.1.0).
+- [PyTorch](http://pytorch.org/) >= 1.2.0 (tested with version 1.2.0).
 - C++11 compiler (tested with GCC 4.8.2, 5.5.0, 6.4.0).
 - For GPU support: [CUDA Toolkit](https://developer.nvidia.com/cuda-zone).
 
