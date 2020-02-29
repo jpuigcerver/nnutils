@@ -68,9 +68,9 @@ top-left corner.
 
 ## Requirements
 
-- Python: 2.7, 3.5, 3.6 or 3.7 (tested with version 2.7, 3.5, 3.6 and 3.7).
-- [PyTorch](http://pytorch.org/) >= 1.2.0 (tested with version 1.2.0).
-- C++11 compiler (tested with GCC 4.8.2, 5.5.0, 6.4.0).
+- Python: 3.5, 3.6 or 3.7 (tested with version 3.5, 3.6 and 3.7).
+- [PyTorch](http://pytorch.org/) >= 1.4.0 (tested with version 1.4.0).
+- C++11 compiler (tested with GCC 5.5.0, 6.4.0).
 - For GPU support: [CUDA Toolkit](https://developer.nvidia.com/cuda-zone).
 
 ## Installation
@@ -93,7 +93,7 @@ configurations in: http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/
 For instance, if you want to install the CPU-only version for Python 3.7:
 
 ```bash
-pip install http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/cpu/nnutils_pytorch-0.3.0-cp37-cp37m-linux_x86_64.whl
+pip install http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/cpu/nnutils_pytorch-0.6.0-cp37-cp37m-linux_x86_64.whl
 ```
 
 ### From GitHub
@@ -108,7 +108,7 @@ python setup.py install
 ### AVX512 related issues
 
 Some compiling problems may arise when using CUDA and newer host compilers
-with AVX512 instructions. Please, install GCC 4.9 and use it as the host
+with AVX512 instructions. Please, install GCC 5.0 or above and use it as the host
 compiler for NVCC. You can simply set the `CC` and `CXX` environment variables
 before the build/install commands:
 

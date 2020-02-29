@@ -21,13 +21,17 @@ fi;
 #######################################################
 set -ex;
 
+yum install -y centos-release-scl;
+yum install -y devtoolset-6-gcc*;
+source /opt/rh/devtoolset-6/enable;
+
 # Copy host source directory, to avoid changes in the host.
 cp -r /host/src /tmp/src;
 
 ODIR="/host/tmp/nnutils_pytorch/whl/cpu";
 mkdir -p "$ODIR";
 wheels=();
-for py in cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m; do
+for py in cp35-cp35m cp36-cp36m cp37-cp37m; do
   export PYTHON=/opt/python/$py/bin/python;
   cd /tmp/src/pytorch;
   # Remove previous builds.
@@ -37,7 +41,7 @@ for py in cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m; do
   "$PYTHON" -m pip install -U wheel setuptools;
 
   echo "=== Installing requirements for $py with CPU-only ==="
-  ../wheels/install_pytorch_cpu.sh "$py";
+  "$PYTHON" -m pip install torch==1.4.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
   "$PYTHON" -m pip install \
 	    -r <(sed -r 's|^torch((>=\|>).*)?$||g;/^$/d' requirements.txt);
 

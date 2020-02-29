@@ -35,8 +35,8 @@ adaptive pooling.
 - For running tests: [Google Test](https://github.com/google/googletest).
 
 ### PyTorch bindings:
-- Python: 2.7, 3.5, 3.6 or 3.7 (tested with version 2.7, 3.5 and 3.6).
-- [PyTorch](http://pytorch.org/) (tested with version 1.2.0).
+- Python: 3.5, 3.6, 3.7 and 3.8 (tested with version 3.5, 3.6, 3.7 and 3.8).
+- [PyTorch](http://pytorch.org/) (tested with version 1.4.0).
 
 ## Installation
 

@@ -12,6 +12,7 @@ if [ ! -f /.dockerenv ]; then
     # soumith/manylinux-cuda80  # Note: not supported by PyTorch anymore.
     soumith/manylinux-cuda92
     soumith/manylinux-cuda100
+    soumith/manylinux-cuda101
   );
   for image in "${DOCKER_IMAGES[@]}"; do
     docker run --runtime=nvidia --rm --log-driver none \
@@ -54,7 +55,7 @@ fi;
 ODIR="/host/tmp/nnutils_pytorch/whl/${CUDA_VERSION_S}";
 mkdir -p "$ODIR";
 wheels=();
-for py in cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m; do
+for py in cp35-cp35m cp36-cp36m cp37-cp37m; do
   export PYTHON=/opt/python/$py/bin/python;
   cd /tmp/src/pytorch;
   # Remove previous builds.
@@ -64,7 +65,7 @@ for py in cp27-cp27mu cp35-cp35m cp36-cp36m cp37-cp37m; do
   "$PYTHON" -m pip install -U wheel setuptools;
 
   echo "=== Installing requirements for $py with CUDA ${CUDA_VERSION} ===";
-  ../wheels/install_pytorch_cuda.sh "$py";
+  "$PYTHON" -m pip install torch==1.4.0+${CUDA_VERSION_S} -f https://download.pytorch.org/whl/torch_stable.html
   "$PYTHON" -m pip install \
 	    -r <(sed -r 's|^torch((>=\|>).*)?$||g;/^$/d' requirements.txt);
 
