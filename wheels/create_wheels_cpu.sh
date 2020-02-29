@@ -40,12 +40,12 @@ for py in cp35-cp35m cp36-cp36m cp37-cp37m; do
   "$PYTHON" -m pip install -U pip;
   "$PYTHON" -m pip install -U wheel setuptools;
 
-  echo "=== Installing requirements for $py with CPU-only ==="
+  echo "=== Installing requirements for $py with CPU-only ===";
   "$PYTHON" -m pip install torch==1.4.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
   "$PYTHON" -m pip install \
 	    -r <(sed -r 's|^torch((>=\|>).*)?$||g;/^$/d' requirements.txt);
 
-  echo "=== Building wheel for $py with CPU-only ==="
+  echo "=== Building wheel for $py with CPU-only ===";
   $PYTHON setup.py clean;
   $PYTHON setup.py bdist_wheel;
 
@@ -55,7 +55,7 @@ for py in cp35-cp35m cp36-cp36m cp37-cp37m; do
   # not use them.
   mv /opt/rh /opt/rh_tmp;
 
-  echo "=== Installing wheel for $py with CPU-only ==="
+  echo "=== Installing wheel for $py with CPU-only ===";
   cd /tmp;
   $PYTHON -m pip uninstall -y nnutils_pytorch;
   $PYTHON -m pip install nnutils_pytorch --no-index -f /tmp/src/pytorch/dist \
