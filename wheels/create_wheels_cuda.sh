@@ -10,7 +10,6 @@ SOURCE_DIR=$(cd $SDIR/.. && pwd);
 if [ ! -f /.dockerenv ]; then
   DOCKER_IMAGES=(
     pytorch/manylinux-cuda92
-    pytorch/manylinux-cuda100
     pytorch/manylinux-cuda101
     pytorch/manylinux-cuda102
   );
@@ -51,13 +50,13 @@ elif [[ "$CUDA_VERSION" == "10.0" ]]; then
 elif [[ "$CUDA_VERSION" == "10.1" ]]; then
   export CUDA_ARCH_LIST="3.5;5.0+PTX;5.2;6.0;6.1;7.0;7.5";
 elif [[ "$CUDA_VERSION" == "10.2" ]]; then
-  export CUDA_ARCH_LIST="3.5;5.0+PTX;5.2;6.0;6.1;7.0;7.5;8.0";
+  export CUDA_ARCH_LIST="3.5;5.0+PTX;5.2;6.0;6.1;7.0;7.5";
 else
   exit 1;
 fi;
 
 base_url=https://download.pytorch.org/whl;
-if [[ "$CUDA_VERSION" == "10.1" ]]; then
+if [[ "$CUDA_VERSION" == "10.2" ]]; then
   torch_prefix="${base_url}/${CUDA_VERSION_S}/torch-1.5.0";
 else
   torch_prefix="${base_url}/${CUDA_VERSION_S}/torch-1.5.0%2B${CUDA_VERSION_S}";
@@ -66,7 +65,8 @@ fi;
 ODIR="/host/tmp/nnutils_pytorch/whl/${CUDA_VERSION_S}";
 mkdir -p "$ODIR";
 wheels=();
-for py in cp35-cp35m cp36-cp36m cp37-cp37m; do
+# for py in cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38m; do
+for py in cp38-cp38m; do
   export PYTHON=/opt/python/$py/bin/python;
   cd /tmp/src/pytorch;
   # Remove previous builds.
