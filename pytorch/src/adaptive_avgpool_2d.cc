@@ -37,13 +37,14 @@ void adaptive_avgpool_2d_fwd(
 
   #define DEFINE_SWITCH_CASE_OP(device_type, device_str, launcher)         \
   case device_type: {                                                      \
-    AT_DISPATCH_FLOATING_TYPES(x.type(), "adaptive_avgpool_2d_fwd", [&] {  \
+    AT_DISPATCH_FLOATING_TYPES(                                            \
+      x.scalar_type(), "adaptive_avgpool_2d_fwd", [&] {			   \
       launcher.Forward(                                                    \
           N, C, iH, iW, oH, oW,                                            \
-          (xs.has_value() ? xs->data<long int>() : nullptr),               \
-          (ys.has_value() ? ys->data<long int>() : nullptr),               \
-          x.data<scalar_t>(),                                              \
-          y.data<scalar_t>(),                                              \
+          (xs.has_value() ? xs->data_ptr<long int>() : nullptr),           \
+          (ys.has_value() ? ys->data_ptr<long int>() : nullptr),           \
+          x.data_ptr<scalar_t>(),                                          \
+          y.data_ptr<scalar_t>(),                                          \
           x.device());                                                     \
     });                                                                    \
   }                                                                        \
@@ -97,13 +98,13 @@ void adaptive_avgpool_2d_bwd(
   #define DEFINE_SWITCH_CASE_OP(device_type, device_str, launcher)         \
   case device_type: {                                                      \
     AT_DISPATCH_FLOATING_TYPES(                                            \
-        grad_y.type(), "adaptive_avgpool_2d_bwd", [&] {                    \
+        grad_y.scalar_type(), "adaptive_avgpool_2d_bwd", [&] {             \
       launcher.Backward(                                                   \
           N, C, iH, iW, oH, oW,                                            \
-          (xs.has_value() ? xs->data<long int>() : nullptr),               \
-          (ys.has_value() ? ys->data<long int>() : nullptr),               \
-          grad_y.data<scalar_t>(),                                         \
-          grad_x.data<scalar_t>(),                                         \
+          (xs.has_value() ? xs->data_ptr<long int>() : nullptr),           \
+          (ys.has_value() ? ys->data_ptr<long int>() : nullptr),           \
+          grad_y.data_ptr<scalar_t>(),                                     \
+          grad_x.data_ptr<scalar_t>(),                                     \
           grad_y.device());                                                \
     });                                                                    \
   }                                                                        \

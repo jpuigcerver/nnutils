@@ -20,7 +20,7 @@ void AdaptiveMaxpool2dLauncher::Forward(
     const long int* xs, const long int* ys,
     const T* x, T* y, long int* index, const c10::Device& device) {
   c10::DeviceGuard device_guard(device);
-  auto stream = THCState_getCurrentStream(at::globalContext().getTHCState());
+  auto stream = c10::cuda::getCurrentCUDAStream();
   nnutils::gpu::adaptive_maxpool_2d_fwd(
       N, C, iH, iW, oH, oW, xs, ys, x, y, index, stream);
 }
@@ -33,7 +33,7 @@ void AdaptiveMaxpool2dLauncher::Backward(
       const long int* index, const long int* out_sizes,
       const T* g_output, T* g_input, const c10::Device& device) {
   c10::DeviceGuard device_guard(device);
-  auto stream = THCState_getCurrentStream(at::globalContext().getTHCState());
+  auto stream = c10::cuda::getCurrentCUDAStream();
   nnutils::gpu::adaptive_maxpool_2d_bwd(
       N, C, iH, iW, oH, oW, out_sizes, index, g_output, g_input, stream);
 }

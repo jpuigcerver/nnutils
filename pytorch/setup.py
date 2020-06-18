@@ -7,8 +7,8 @@ from torch.utils.cpp_extension import BuildExtension, CppExtension, CUDAExtensio
 
 
 extra_compile_args = {
-    "cxx": ["-std=c++11", "-O3", "-fopenmp"],
-    "nvcc": ["-std=c++11", "-O3", "--compiler-options=-fopenmp"],
+    "cxx": ["-std=c++14", "-O3", "-fopenmp"],
+    "nvcc": ["-std=c++14", "-O3", "--compiler-options=-fopenmp"],
 }
 
 CC = os.getenv("CC", None)
@@ -103,7 +103,7 @@ requirements = get_requirements()
 long_description = get_long_description()
 setup(
     name="nnutils_pytorch",
-    version="0.6.0.post1",
+    version="0.7.0",
     description="PyTorch bindings of the nnutils library",
     long_description=long_description,
     long_description_content_type="text/markdown",

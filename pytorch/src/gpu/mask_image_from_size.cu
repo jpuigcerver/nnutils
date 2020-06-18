@@ -17,7 +17,7 @@ void MaskImageFromSizeLauncher::operator()(
     const long int N, const long int C, const long int H, const long int W,
     const long int* xs, T* x, const T& m, const c10::Device& device) {
   at::DeviceGuard device_guard(device);
-  auto stream = THCState_getCurrentStream(at::globalContext().getTHCState());
+  auto stream = c10::cuda::getCurrentCUDAStream();  
   nnutils::gpu::mask_image_from_size(N, C, H, W, xs, x, m, stream);
 }
 

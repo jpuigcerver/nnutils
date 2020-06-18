@@ -21,7 +21,7 @@ void AdaptiveAvgpool2dLauncher::Forward(
     const long int* xs, const long int* ys,
     const T* x, T* y, const c10::Device& device) {
   c10::DeviceGuard device_guard(device);
-  auto stream = THCState_getCurrentStream(at::globalContext().getTHCState());
+  auto stream = c10::cuda::getCurrentCUDAStream();
   nnutils::gpu::adaptive_avgpool_2d_fwd(N, C, iH, iW, oH, oW, xs, ys, x, y, stream);
 }
 
@@ -33,7 +33,7 @@ void AdaptiveAvgpool2dLauncher::Backward(
     const long int* xs, const long int* ys,
     const T* grad_y, T* grad_x, const c10::Device& device) {
   c10::DeviceGuard device_guard(device);
-  auto stream = THCState_getCurrentStream(at::globalContext().getTHCState());
+  auto stream = c10::cuda::getCurrentCUDAStream();
   nnutils::gpu::adaptive_avgpool_2d_bwd(
       N, C, iH, iW, oH, oW, xs, ys, grad_y, grad_x, stream);
 }

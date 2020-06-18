@@ -26,11 +26,12 @@ void mask_image_from_size(
 
   #define DEFINE_SWITCH_CASE_OP(device_type, device_str, launcher) \
   case device_type: {                                              \
-    AT_DISPATCH_ALL_TYPES(x.type(), "mask_image_from_size", [&] {  \
+    AT_DISPATCH_ALL_TYPES(                                         \
+      x.scalar_type(), "mask_image_from_size", [&] {               \
       launcher(                                                    \
           N, C, H, W,                                              \
-          xs.data<long int>(),                                     \
-          x.data<scalar_t>(),                                      \
+          xs.data_ptr<long int>(),                                 \
+          x.data_ptr<scalar_t>(),                                  \
           mask.cast<scalar_t>(),                                   \
           x.device());                                             \
     });                                                            \
