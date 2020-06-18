@@ -23,7 +23,7 @@ env:
   global:
     - GTEST_ROOT="$HOME/.local"
   matrix:
-    - CC=gcc-5 CXX=g++-5 TORCH_PIP_PACKAGE=torch
+    - CC=gcc-7 CXX=g++-7 TORCH_PIP_PACKAGE=torch
 
 # Add tests with additional compilers
 matrix:

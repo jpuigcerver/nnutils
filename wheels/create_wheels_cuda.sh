@@ -9,10 +9,10 @@ SOURCE_DIR=$(cd $SDIR/.. && pwd);
 ###########################################
 if [ ! -f /.dockerenv ]; then
   DOCKER_IMAGES=(
-    # soumith/manylinux-cuda80  # Note: not supported by PyTorch anymore.
-    soumith/manylinux-cuda92
-    soumith/manylinux-cuda100
-    soumith/manylinux-cuda101
+    pytorch/manylinux-cuda92
+    pytorch/manylinux-cuda100
+    pytorch/manylinux-cuda101
+    pytorch/manylinux-cuda102
   );
   for image in "${DOCKER_IMAGES[@]}"; do
     docker run --runtime=nvidia --rm --log-driver none \
@@ -50,15 +50,17 @@ elif [[ "$CUDA_VERSION" == "10.0" ]]; then
   export CUDA_ARCH_LIST="3.5;5.0+PTX;5.2;6.0;6.1;7.0;7.5";
 elif [[ "$CUDA_VERSION" == "10.1" ]]; then
   export CUDA_ARCH_LIST="3.5;5.0+PTX;5.2;6.0;6.1;7.0;7.5";
+elif [[ "$CUDA_VERSION" == "10.2" ]]; then
+  export CUDA_ARCH_LIST="3.5;5.0+PTX;5.2;6.0;6.1;7.0;7.5;8.0";
 else
   exit 1;
 fi;
 
 base_url=https://download.pytorch.org/whl;
 if [[ "$CUDA_VERSION" == "10.1" ]]; then
-  torch_prefix="${base_url}/${CUDA_VERSION_S}/torch-1.4.0";
+  torch_prefix="${base_url}/${CUDA_VERSION_S}/torch-1.5.0";
 else
-  torch_prefix="${base_url}/${CUDA_VERSION_S}/torch-1.4.0%2B${CUDA_VERSION_S}";
+  torch_prefix="${base_url}/${CUDA_VERSION_S}/torch-1.5.0%2B${CUDA_VERSION_S}";
 fi;
 
 ODIR="/host/tmp/nnutils_pytorch/whl/${CUDA_VERSION_S}";

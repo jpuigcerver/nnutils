@@ -41,7 +41,7 @@ for py in cp35-cp35m cp36-cp36m cp37-cp37m; do
   "$PYTHON" -m pip install -U wheel setuptools;
 
   echo "=== Installing requirements for $py with CPU-only ===";
-  "$PYTHON" -m pip install torch==1.4.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+  "$PYTHON" -m pip install torch==1.5.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
   "$PYTHON" -m pip install \
 	    -r <(sed -r 's|^torch((>=\|>).*)?$||g;/^$/d' requirements.txt);
 
