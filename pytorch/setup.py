@@ -1,8 +1,17 @@
 import io
 import os
 import re
-import torch
 from setuptools import setup, find_packages
+
+try:
+    import torch
+except ImportError:
+    import subprocess, sys
+
+    with open("requirements.txt") as f:
+        torch_version = [l.strip() for l in f if l.startswith("torch")][0]
+    subprocess.check_call([sys.executable, "-m", "pip", "install", torch_version])
+    import torch
 from torch.utils.cpp_extension import BuildExtension, CppExtension, CUDAExtension
 
 
