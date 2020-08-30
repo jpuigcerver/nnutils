@@ -65,8 +65,7 @@ fi;
 ODIR="/host/tmp/nnutils_pytorch/whl/${CUDA_VERSION_S}";
 mkdir -p "$ODIR";
 wheels=();
-# for py in cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38m; do
-for py in cp38-cp38m; do
+for py in cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38; do
   export PYTHON=/opt/python/$py/bin/python;
   cd /tmp/src/pytorch;
   # Remove previous builds.
