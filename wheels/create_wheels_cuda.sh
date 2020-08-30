@@ -60,7 +60,7 @@ if [[ "$CUDA_VERSION" == "9.2" ]]; then
     pip_torch=("torch==1.4.0+cu92" -f https://download.pytorch.org/whl/torch_stable.html);
 elif [[ "$CUDA_VERSION" == "10.0" ]]; then
     pip_torch=("torch==1.4.0+cu100" -f https://download.pytorch.org/whl/torch_stable.html);
-elif [[ "$CUDA_VERSION" == "10.2" ]]; then
+elif [[ "$CUDA_VERSION" == "10.1" ]]; then
     pip_torch=("torch==1.4.0");
 fi;
 
