@@ -57,17 +57,17 @@ fi;
 
 base_url=https://download.pytorch.org/whl;
 if [[ "$CUDA_VERSION" == "9.2" ]]; then
-    pip_torch=("torch==1.5.1+cu92" -f https://download.pytorch.org/whl/torch_stable.html);
+    pip_torch=("torch==1.6.0+cu92" -f https://download.pytorch.org/whl/torch_stable.html);
 elif [[ "$CUDA_VERSION" == "10.1" ]]; then
-    pip_torch=("torch==1.5.1+cu101" -f https://download.pytorch.org/whl/torch_stable.html);
+    pip_torch=("torch==1.6.0+cu101" -f https://download.pytorch.org/whl/torch_stable.html);
 elif [[ "$CUDA_VERSION" == "10.2" ]]; then
-    pip_torch=("torch==1.5.1");
+    pip_torch=("torch==1.6.0");
 fi;
 
 ODIR="/host/tmp/nnutils_pytorch/whl/${CUDA_VERSION_S}";
 mkdir -p "$ODIR";
 wheels=();
-for py in cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38; do
+for py in cp36-cp36m cp37-cp37m cp38-cp38; do
   export PYTHON=/opt/python/$py/bin/python;
   cd /tmp/src/pytorch;
   # Remove previous builds.

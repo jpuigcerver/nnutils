@@ -23,7 +23,7 @@ env:
   global:
     - GTEST_ROOT="$HOME/.local"
   matrix:
-    - CC=gcc-7 CXX=g++-7 TORCH_PIP_PACKAGE="torch==1.5.0"
+    - CC=gcc-7 CXX=g++-7 TORCH_PIP_PACKAGE="torch==1.6.0"
 
 # Add tests with additional compilers
 matrix:
@@ -36,7 +36,7 @@ matrix:
           packages:
             - gcc-6
             - g++-6
-      env: CC=gcc-6 CXX=g++-6 TORCH_PIP_PACKAGE="torch==1.5.0"
+      env: CC=gcc-6 CXX=g++-6 TORCH_PIP_PACKAGE="torch==1.6.0"
 
 
 before_install:

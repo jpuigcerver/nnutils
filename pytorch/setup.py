@@ -103,7 +103,7 @@ requirements = get_requirements()
 long_description = get_long_description()
 setup(
     name="nnutils_pytorch",
-    version="1.1.5.1",
+    version="1.1.6.0",
     description="PyTorch bindings of the nnutils library",
     long_description=long_description,
     long_description_content_type="text/markdown",
@@ -128,7 +128,6 @@ setup(
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: MIT License",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.5",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",

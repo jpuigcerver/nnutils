@@ -29,7 +29,7 @@ cp -r /host/src /tmp/src;
 ODIR="/host/tmp/nnutils_pytorch/whl/cpu";
 mkdir -p "$ODIR";
 wheels=();
-for py in cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38; do
+for py in cp36-cp36m cp37-cp37m cp38-cp38; do
   export PYTHON=/opt/python/$py/bin/python;
   cd /tmp/src/pytorch;
   # Remove previous builds.
@@ -39,7 +39,7 @@ for py in cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38; do
   "$PYTHON" -m pip install -U wheel setuptools;
 
   echo "=== Installing requirements for $py with CPU-only ===";
-  "$PYTHON" -m pip install torch==1.5.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+  "$PYTHON" -m pip install https://download.pytorch.org/whl/cpu/torch-1.6.0%2Bcpu-${py}-linux_x86_64.whl
   "$PYTHON" -m pip install \
 	    -r <(sed -r 's|^torch((>=\|>).*)?$||g;/^$/d' requirements.txt);
 
