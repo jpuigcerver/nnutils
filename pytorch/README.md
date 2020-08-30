@@ -68,8 +68,8 @@ top-left corner.
 
 ## Requirements
 
-- Python: 3.5, 3.6 or 3.7 (tested with version 3.5, 3.6 and 3.7).
-- [PyTorch](http://pytorch.org/) >= 1.5.0 (tested with version 1.5.0).
+- Python: 3.5, 3.6, 3.7 or 3.8 (tested with version 3.5, 3.6, 3.7 and 3.8).
+- [PyTorch](http://pytorch.org/) >= 1.5.1 (tested with version 1.5.1).
 - C++14 compiler (tested with GCC 7.5.0).
 - For GPU support: [CUDA Toolkit](https://developer.nvidia.com/cuda-zone).
 
@@ -93,7 +93,7 @@ configurations in: http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/
 For instance, if you want to install the CPU-only version for Python 3.7:
 
 ```bash
-pip install http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/cpu/nnutils_pytorch-0.7.0-cp37-cp37m-linux_x86_64.whl
+pip install http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/cpu/nnutils_pytorch-1.1.5.1-cp37-cp37m-linux_x86_64.whl
 ```
 
 ### From GitHub

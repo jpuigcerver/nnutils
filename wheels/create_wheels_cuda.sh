@@ -56,10 +56,12 @@ else
 fi;
 
 base_url=https://download.pytorch.org/whl;
-if [[ "$CUDA_VERSION" == "10.2" ]]; then
-  torch_prefix="${base_url}/${CUDA_VERSION_S}/torch-1.5.0";
-else
-  torch_prefix="${base_url}/${CUDA_VERSION_S}/torch-1.5.0%2B${CUDA_VERSION_S}";
+if [[ "$CUDA_VERSION" == "9.2" ]]; then
+    pip_torch=("torch==1.5.1+cu92" -f https://download.pytorch.org/whl/torch_stable.html);
+elif [[ "$CUDA_VERSION" == "10.1" ]]; then
+    pip_torch=("torch==1.5.1+cu101" -f https://download.pytorch.org/whl/torch_stable.html);
+elif [[ "$CUDA_VERSION" == "10.2" ]]; then
+    pip_torch=("torch==1.5.1");
 fi;
 
 ODIR="/host/tmp/nnutils_pytorch/whl/${CUDA_VERSION_S}";
@@ -76,7 +78,7 @@ for py in cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38; do
 
   echo "=== Installing requirements for $py with CUDA ${CUDA_VERSION} ===";
 
-  "$PYTHON" -m pip install "${torch_prefix}-${py}-linux_x86_64.whl";
+  "$PYTHON" -m pip install "${pip_torch[@]}";
   "$PYTHON" -m pip install \
 	    -r <(sed -r 's|^torch((>=\|>).*)?$||g;/^$/d' requirements.txt);
 
