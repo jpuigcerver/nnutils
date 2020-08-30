@@ -36,7 +36,7 @@ adaptive pooling.
 
 ### PyTorch bindings:
 - Python: 3.5, 3.6, 3.7 and 3.8 (tested with version 3.5, 3.6, 3.7 and 3.8).
-- [PyTorch](http://pytorch.org/) (tested with version 1.5.0).
+- [PyTorch](http://pytorch.org/) (tested with version 1.4.0).
 
 ## Installation
 

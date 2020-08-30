@@ -10,8 +10,8 @@ SOURCE_DIR=$(cd $SDIR/.. && pwd);
 if [ ! -f /.dockerenv ]; then
   DOCKER_IMAGES=(
     pytorch/manylinux-cuda92
+    pytorch/manylinux-cuda100
     pytorch/manylinux-cuda101
-    pytorch/manylinux-cuda102
   );
   for image in "${DOCKER_IMAGES[@]}"; do
     docker run --runtime=nvidia --rm --log-driver none \
@@ -57,11 +57,11 @@ fi;
 
 base_url=https://download.pytorch.org/whl;
 if [[ "$CUDA_VERSION" == "9.2" ]]; then
-    pip_torch=("torch==1.5.1+cu92" -f https://download.pytorch.org/whl/torch_stable.html);
-elif [[ "$CUDA_VERSION" == "10.1" ]]; then
-    pip_torch=("torch==1.5.1+cu101" -f https://download.pytorch.org/whl/torch_stable.html);
+    pip_torch=("torch==1.4.0+cu92" -f https://download.pytorch.org/whl/torch_stable.html);
+elif [[ "$CUDA_VERSION" == "10.0" ]]; then
+    pip_torch=("torch==1.4.0+cu100" -f https://download.pytorch.org/whl/torch_stable.html);
 elif [[ "$CUDA_VERSION" == "10.2" ]]; then
-    pip_torch=("torch==1.5.1");
+    pip_torch=("torch==1.4.0");
 fi;
 
 ODIR="/host/tmp/nnutils_pytorch/whl/${CUDA_VERSION_S}";
