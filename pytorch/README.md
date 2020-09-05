@@ -93,7 +93,7 @@ configurations in: http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/
 For instance, if you want to install the CPU-only version for Python 3.7:
 
 ```bash
-pip install http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/cpu/nnutils_pytorch-1.1.4.0-cp37-cp37m-linux_x86_64.whl
+pip install http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/cpu/nnutils_pytorch-1.4.0-cp37-cp37m-linux_x86_64.whl
 ```
 
 ### From GitHub
