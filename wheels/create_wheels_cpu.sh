@@ -35,11 +35,11 @@ for py in cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38; do
   # Remove previous builds.
   rm -rf build dist;
 
-  "$PYTHON" -m pip install -U pip;
-  "$PYTHON" -m pip install -U wheel setuptools;
+  "$PYTHON" -m pip install --default-timeout=1000 -U pip;
+  "$PYTHON" -m pip install --default-timeout=1000 -U wheel setuptools;
 
   echo "=== Installing requirements for $py with CPU-only ===";
-  "$PYTHON" -m pip install torch==1.5.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
+  "$PYTHON" -m pip install --default-timeout=1000 torch==1.5.1+cpu -f https://download.pytorch.org/whl/torch_stable.html
   "$PYTHON" -m pip install \
 	    -r <(sed -r 's|^torch((>=\|>).*)?$||g;/^$/d' requirements.txt);
 
