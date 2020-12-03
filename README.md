@@ -35,8 +35,8 @@ adaptive pooling.
 - For running tests: [Google Test](https://github.com/google/googletest).
 
 ### PyTorch bindings:
-- Python: 3.6, 3.7 and 3.8.
-- [PyTorch 1.6.0](http://pytorch.org/).
+
+Have a look at its [README](pytorch/README.md)
 
 ## Installation
 
@@ -45,12 +45,7 @@ have correctly installed the required libraries and tools.
 
 ### PyTorch bindings (recommended)
 
-```bash
-git clone https://github.com/jpuigcerver/nnutils.git
-cd nnutils/pytorch
-python setup.py build
-python setup.py install
-```
+Have a look at its [README](pytorch/README.md)
 
 ### Standalone C++ library
 

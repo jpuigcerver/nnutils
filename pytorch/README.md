@@ -68,8 +68,8 @@ top-left corner.
 
 ## Requirements
 
-- Python: 3.6, 3.7 or 3.8 (tested with version 3.6, 3.7 and 3.8).
-- [PyTorch](http://pytorch.org/) >= 1.6.0 (tested with version 1.6.0).
+- Python: 3.6, 3.7, or 3.8 (tested with version 3.6, 3.7 and 3.8).
+- [PyTorch](http://pytorch.org/) >= 1.7.0 (tested with version 1.7.0).
 - C++14 compiler (tested with GCC 7.5.0).
 - For GPU support: [CUDA Toolkit](https://developer.nvidia.com/cuda-zone).
 
@@ -90,10 +90,10 @@ pip install nnutils-pytorch
 You may find the package already compiled for different Python, CUDA and CPU
 configurations in: http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/
 
-For instance, if you want to install the CPU-only version for Python 3.7:
+For instance, if you want to install the CPU-only version for Python 3.8:
 
 ```bash
-pip install http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/cpu/nnutils_pytorch-1.6.0-cp37-cp37m-linux_x86_64.whl
+pip install http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/cpu/nnutils_pytorch-1.7.0-cp38-cp38m-linux_x86_64.whl
 ```
 
 ### From GitHub
