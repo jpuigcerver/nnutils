@@ -1,0 +1,36 @@
+name: nnutils CI
+
+on: [push, pull_request]
+
+jobs:
+  test-pytorch:
+    name: Python ${{ matrix.python-version }} - GCC ${{ matrix.compiler-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: [3.8, 3.7, 3.6]
+        compiler-version: [7, 8, 9, 10]
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install requirements
+      run: |
+        pip install -r pytorch/requirements.txt
+        pip install wheel
+    - name: Create and install wheel
+      env:
+        CC: gcc-${{ matrix.compiler-version }}
+        CXX: g++-${{ matrix.compiler-version }}
+      run: |
+        cd pytorch
+        python setup.py bdist_wheel
+        pip install $(find dist -name '*.whl')
+    - name: Run tests
+      run: |
+        python -m unittest nnutils_pytorch.mask_image_from_size_test
+        python -m unittest nnutils_pytorch.adaptive_avgpool_2d_test
+        python -m unittest nnutils_pytorch.adaptive_maxpool_2d_test
+  # TODO: add test-c++ job

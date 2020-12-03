@@ -1,7 +1,5 @@
 # nnutils-pytorch
 
-[![Build Status](https://travis-ci.org/jpuigcerver/nnutils.svg?branch=master)](https://travis-ci.org/jpuigcerver/nnutils)
-
 PyTorch bindings of different neural network-related utilities implemented for
 CPUs and GPUs (CUDA).
 
@@ -70,8 +68,8 @@ top-left corner.
 
 - Python: 3.6, 3.7, or 3.8 (tested with version 3.6, 3.7 and 3.8).
 - [PyTorch](http://pytorch.org/) >= 1.7.0 (tested with version 1.7.0).
-- C++14 compiler (tested with GCC 7.5.0).
-- For GPU support: [CUDA Toolkit](https://developer.nvidia.com/cuda-zone).
+- C++14 compiler (tested with GCC 7.5 and above).
+- For GPU support: [CUDA Toolkit](https://developer.nvidia.com/CUDA-toolkit).
 
 ## Installation
 
@@ -103,23 +101,6 @@ git clone https://github.com/jpuigcerver/nnutils.git
 cd nnutils/pytorch
 python setup.py build
 python setup.py install
-```
-
-### AVX512 related issues
-
-Some compiling problems may arise when using CUDA and newer host compilers
-with AVX512 instructions. Please, install GCC 7.5 or above and use it as the
-host compiler for NVCC 10.2. You can simply set the `CC` and `CXX` environment
-variables before the build/install commands:
-
-```bash
-CC=gcc-4.9 CXX=g++-4.9 pip install nnutils-pytorch
-```
-
-or (if you are using the GitHub source code):
-
-```bash
-CC=gcc-4.9 CXX=g++-4.9 python setup.py build
 ```
 
 ## Testing
