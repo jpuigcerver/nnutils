@@ -56,6 +56,7 @@ template void AdaptiveMaxpool2dLauncher::Backward<TYPE>(                  \
 
 INSTANTIATE_OPERATOR(double);
 INSTANTIATE_OPERATOR(float);
+INSTANTIATE_OPERATOR(at::Half);
 
 #undef INSTANTIATE_OPERATOR
 }  // namespace gpu
