@@ -56,28 +56,29 @@ else
 fi;
 
 base_url=https://download.pytorch.org/whl;
-if [[ "$CUDA_VERSION" == "10.2" ]]; then
-  torch_prefix="${base_url}/${CUDA_VERSION_S}/torch-1.5.0";
-else
-  torch_prefix="${base_url}/${CUDA_VERSION_S}/torch-1.5.0%2B${CUDA_VERSION_S}";
+if [[ "$CUDA_VERSION" == "9.2" ]]; then
+    pip_torch=("torch==1.6.0+cu92" -f https://download.pytorch.org/whl/torch_stable.html);
+elif [[ "$CUDA_VERSION" == "10.1" ]]; then
+    pip_torch=("torch==1.6.0+cu101" -f https://download.pytorch.org/whl/torch_stable.html);
+elif [[ "$CUDA_VERSION" == "10.2" ]]; then
+    pip_torch=("torch==1.6.0");
 fi;
 
 ODIR="/host/tmp/nnutils_pytorch/whl/${CUDA_VERSION_S}";
 mkdir -p "$ODIR";
 wheels=();
-# for py in cp35-cp35m cp36-cp36m cp37-cp37m cp38-cp38m; do
-for py in cp38-cp38m; do
+for py in cp36-cp36m cp37-cp37m cp38-cp38; do
   export PYTHON=/opt/python/$py/bin/python;
   cd /tmp/src/pytorch;
   # Remove previous builds.
   rm -rf build dist;
 
-  "$PYTHON" -m pip install -U pip;
-  "$PYTHON" -m pip install -U wheel setuptools;
+  "$PYTHON" -m pip install --default-timeout=1000 -U pip;
+  "$PYTHON" -m pip install --default-timeout=1000 -U wheel setuptools;
 
   echo "=== Installing requirements for $py with CUDA ${CUDA_VERSION} ===";
 
-  "$PYTHON" -m pip install "${torch_prefix}-${py}-linux_x86_64.whl";
+  "$PYTHON" -m pip install --default-timeout=1000 "${pip_torch[@]}";
   "$PYTHON" -m pip install \
 	    -r <(sed -r 's|^torch((>=\|>).*)?$||g;/^$/d' requirements.txt);
 

@@ -11,7 +11,7 @@ if [ ! -f /.dockerenv ]; then
   docker run --rm --log-driver none \
 	 -v /tmp:/host/tmp \
 	 -v ${SOURCE_DIR}:/host/src \
-	 joapuipe/manylinux-centos7 \
+	 quay.io/pypa/manylinux2014_x86_64 \
 	 /host/src/wheels/create_wheels_cpu.sh;
   exit 0;
 fi;
@@ -21,9 +21,7 @@ fi;
 #######################################################
 set -ex;
 
-yum install -y centos-release-scl;
-yum install -y devtoolset-6-gcc*;
-source /opt/rh/devtoolset-6/enable;
+source /opt/rh/devtoolset-9/enable;
 
 # Copy host source directory, to avoid changes in the host.
 cp -r /host/src /tmp/src;
@@ -31,17 +29,17 @@ cp -r /host/src /tmp/src;
 ODIR="/host/tmp/nnutils_pytorch/whl/cpu";
 mkdir -p "$ODIR";
 wheels=();
-for py in cp35-cp35m cp36-cp36m cp37-cp37m; do
+for py in cp36-cp36m cp37-cp37m cp38-cp38; do
   export PYTHON=/opt/python/$py/bin/python;
   cd /tmp/src/pytorch;
   # Remove previous builds.
   rm -rf build dist;
 
-  "$PYTHON" -m pip install -U pip;
-  "$PYTHON" -m pip install -U wheel setuptools;
+  "$PYTHON" -m pip install --default-timeout=1000 -U pip;
+  "$PYTHON" -m pip install --default-timeout=1000 -U wheel setuptools;
 
   echo "=== Installing requirements for $py with CPU-only ===";
-  "$PYTHON" -m pip install torch==1.5.0+cpu -f https://download.pytorch.org/whl/torch_stable.html
+  "$PYTHON" -m pip install --default-timeout=1000 https://download.pytorch.org/whl/cpu/torch-1.6.0%2Bcpu-${py}-linux_x86_64.whl
   "$PYTHON" -m pip install \
 	    -r <(sed -r 's|^torch((>=\|>).*)?$||g;/^$/d' requirements.txt);
 

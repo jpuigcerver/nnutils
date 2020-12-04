@@ -1,7 +1,5 @@
 # nnutils-pytorch
 
-[![Build Status](https://travis-ci.org/jpuigcerver/nnutils.svg?branch=master)](https://travis-ci.org/jpuigcerver/nnutils)
-
 PyTorch bindings of different neural network-related utilities implemented for
 CPUs and GPUs (CUDA).
 
@@ -26,17 +24,15 @@ from nnutils_pytorch import adaptive_avgpool_2d, adaptive_maxpool_2d
 # Two random images, with three channels, 10 pixels height, 12 pixels width
 x = torch.rand(2, 3, 10, 12)
 # Matrix (N x 2) containing the height and width of each image.
-xs = torch.tensor([[10, 6], [6, 12], dtype=torch.int64)
+xs = torch.tensor([[10, 6], [6, 12]], dtype=torch.long)
 
 # Pool images to a fixed size, taking into account the original size of each
 # image before padding.
-#
 # Output tensor has shape (2, 3, 3, 5)
 y1 = adaptive_avgpool_2d(batch_input=x, output_sizes=(3, 5), batch_sizes=xs)
 
 # Pool a single dimension of the images, taking into account the original
 # size of each image before padding. The None dimension is not pooled.
-#
 # Output tensor has shape (2, 3, 5, 12)
 y2 = adaptive_maxpool_2d(x, (5, None), xs)
 ```
@@ -57,7 +53,7 @@ from nnutils_pytorch import mask_image_from_size
 # Two random images, with three channels, 10 pixels height, 12 pixels width
 x = torch.rand(2, 3, 10, 12)
 # Matrix (N x 2) containing the height and width of each image.
-xs = torch.tensor([[10, 6], [6, 12], dtype=torch.int64)
+xs = torch.tensor([[10, 6], [6, 12]], dtype=torch.long)
 
 # Note: mask_image_from_size is differentiable w.r.t. x
 y = mask_image_from_size(x, xs, mask_value=0)  # mask_value is optional.
@@ -68,10 +64,10 @@ top-left corner.
 
 ## Requirements
 
-- Python: 3.5, 3.6 or 3.7 (tested with version 3.5, 3.6 and 3.7).
-- [PyTorch](http://pytorch.org/) >= 1.5.0 (tested with version 1.5.0).
-- C++14 compiler (tested with GCC 7.5.0).
-- For GPU support: [CUDA Toolkit](https://developer.nvidia.com/cuda-zone).
+- Python: 3.6, 3.7, or 3.8 (tested with version 3.6, 3.7 and 3.8).
+- [PyTorch](http://pytorch.org/) >= 1.7.0 (tested with version 1.7.0).
+- C++14 compiler (tested with GCC 7.5 and above).
+- For GPU support: [CUDA Toolkit](https://developer.nvidia.com/CUDA-toolkit).
 
 ## Installation
 
@@ -90,10 +86,10 @@ pip install nnutils-pytorch
 You may find the package already compiled for different Python, CUDA and CPU
 configurations in: http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/
 
-For instance, if you want to install the CPU-only version for Python 3.7:
+For instance, if you want to install the CPU-only version for Python 3.8:
 
 ```bash
-pip install http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/cpu/nnutils_pytorch-0.7.0-cp37-cp37m-linux_x86_64.whl
+pip install http://www.jpuigcerver.net/projects/nnutils-pytorch/whl/cpu/nnutils_pytorch-1.7.0-cp38-cp38m-linux_x86_64.whl
 ```
 
 ### From GitHub
@@ -105,32 +101,13 @@ python setup.py build
 python setup.py install
 ```
 
-### AVX512 related issues
-
-Some compiling problems may arise when using CUDA and newer host compilers
-with AVX512 instructions. Please, install GCC 7.5 or above and use it as the
-host compiler for NVCC 10.2. You can simply set the `CC` and `CXX` environment
-variables before the build/install commands:
-
-```bash
-CC=gcc-4.9 CXX=g++-4.9 pip install nnutils-pytorch
-```
-
-or (if you are using the GitHub source code):
-
-```bash
-CC=gcc-4.9 CXX=g++-4.9 python setup.py build
-```
-
 ## Testing
 
-You can test the library once installed using `unittest`. In particular,
-run the following commands:
+You can test the library once installed using `pytest`. Just run:
 
 ```bash
-python -m unittest nnutils_pytorch.adaptive_avgpool_2d_test
-python -m unittest nnutils_pytorch.adaptive_maxgpool_2d_test
-python -m unittest nnutils_pytorch.mask_image_from_size_test
+# pip install pytest
+pytest
 ```
 
 All tests should pass (CUDA tests are only executed if supported).

@@ -47,8 +47,8 @@ void adaptive_maxpool_2d_fwd(
 
   #define DEFINE_SWITCH_CASE_OP(device_type, device_str, launcher)         \
   case device_type: {                                                      \
-    AT_DISPATCH_FLOATING_TYPES(                                            \
-      x.scalar_type(), "adaptive_maxpool_2d_fwd", [&] {			   \
+    AT_DISPATCH_FLOATING_TYPES_AND_HALF(                                   \
+      x.scalar_type(), "adaptive_maxpool_2d_fwd", [&] {                    \
       launcher.Forward(                                                    \
           N, C, iH, iW, oH, oW,                                            \
           (xs.has_value() ? xs->data_ptr<long int>() : nullptr),           \
@@ -110,7 +110,7 @@ void adaptive_maxpool_2d_bwd(
 
   #define DEFINE_SWITCH_CASE_OP(device_type, device_str, launcher)         \
   case device_type: {                                                      \
-    AT_DISPATCH_FLOATING_TYPES(                                            \
+    AT_DISPATCH_FLOATING_TYPES_AND_HALF(                                   \
       grad_y.scalar_type(), "adaptive_maxpool_2d_bwd", [&] {               \
       launcher.Backward(                                                   \
           N, C, iH, iW, oH, oW,                                            \

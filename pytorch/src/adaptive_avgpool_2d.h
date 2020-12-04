@@ -1,10 +1,7 @@
 #ifndef NNUTILS_PYTORCH_ADAPTIVE_AVGPOOL_2D_H_
 #define NNUTILS_PYTORCH_ADAPTIVE_AVGPOOL_2D_H_
 
-namespace at {
-
-class Tensor;
-}  // namespace at
+namespace at { class Tensor; }
 namespace c10 {
 class Device;
 template <typename T> class optional;

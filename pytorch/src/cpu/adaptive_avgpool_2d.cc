@@ -30,7 +30,7 @@ void AdaptiveAvgpool2dLauncher::Backward(
 }
 
 
-#define INSTANTITATE_OPERATOR(TYPE)                                       \
+#define INSTANTIATE_OPERATOR(TYPE)                                        \
 template void AdaptiveAvgpool2dLauncher::Forward<TYPE>(                   \
     const long int N, const long int C,                                   \
     const long int iH, const long int iW,                                 \
@@ -45,10 +45,10 @@ template void AdaptiveAvgpool2dLauncher::Backward<TYPE>(                  \
     const long int* xs, const long int* ys,                               \
     const TYPE* grad_y, TYPE* grad_x, const c10::Device& device)
 
-INSTANTITATE_OPERATOR(double);
-INSTANTITATE_OPERATOR(float);
+INSTANTIATE_OPERATOR(double);
+INSTANTIATE_OPERATOR(float);
 
-#undef INSTANTITATE_OPERATOR
+#undef INSTANTIATE_OPERATOR
 }  // namespace cpu
 }  // namespace pytorch
 }  // namespace nnutils

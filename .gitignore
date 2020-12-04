@@ -31,8 +31,13 @@
 *.out
 *.app
 
+# Build files
 *~
-cmake-build*/
-build*/
-.idea
-*.egg-info*
+cmake-build/
+build/
+.idea/
+*.egg-info/
+.eggs/
+
+# Common environment names
+venv/

@@ -1,6 +1,6 @@
 # nnutils
 
-[![Build Status](https://travis-ci.org/jpuigcerver/nnutils.svg?branch=master)](https://travis-ci.org/jpuigcerver/nnutils)
+![Build Status](https://github.com/jpuigcerver/nnutils/workflows/nnutils%20CI/badge.svg)
 
 Implementation of different neural network-related utilities for
 CPUs and GPUs (CUDA).
@@ -27,16 +27,18 @@ adaptive pooling.
 ## Requirements
 
 ### Minimum:
-- C++14 compiler (tested with GCC 6.4.0 and 7.5.0).
+
+- C++14 compiler (tested with GCC 7.5 and above).
 - [CMake 3.0](https://cmake.org/).
 
 ### Recommended:
-- For GPU support: [CUDA Toolkit](https://developer.nvidia.com/cuda-zone).
+
+- For GPU support: [CUDA Toolkit](https://developer.nvidia.com/CUDA-toolkit).
 - For running tests: [Google Test](https://github.com/google/googletest).
 
 ### PyTorch bindings:
-- Python: 3.5, 3.6, 3.7 and 3.8 (tested with version 3.5, 3.6, 3.7 and 3.8).
-- [PyTorch](http://pytorch.org/) (tested with version 1.5.0).
+
+Have a look at its [README](pytorch/README.md)
 
 ## Installation
 
@@ -45,12 +47,7 @@ have correctly installed the required libraries and tools.
 
 ### PyTorch bindings (recommended)
 
-```bash
-git clone https://github.com/jpuigcerver/nnutils.git
-cd nnutils/pytorch
-python setup.py build
-python setup.py install
-```
+Have a look at its [README](pytorch/README.md)
 
 ### Standalone C++ library
 
