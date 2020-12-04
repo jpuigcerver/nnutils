@@ -39,7 +39,7 @@ void AdaptiveMaxpool2dLauncher::Backward(
 }
 
 
-#define INSTANTITATE_OPERATOR(TYPE)                                       \
+#define INSTANTIATE_OPERATOR(TYPE)                                        \
 template void AdaptiveMaxpool2dLauncher::Forward<TYPE>(                   \
     const long int N, const long int C,                                   \
     const long int iH, const long int iW,                                 \
@@ -54,10 +54,10 @@ template void AdaptiveMaxpool2dLauncher::Backward<TYPE>(                  \
     const long int* index, const long int* out_sizes,                     \
     const TYPE* g_output, TYPE* g_input, const c10::Device& device)
 
-INSTANTITATE_OPERATOR(double);
-INSTANTITATE_OPERATOR(float);
+INSTANTIATE_OPERATOR(double);
+INSTANTIATE_OPERATOR(float);
 
-#undef INSTANTITATE_OPERATOR
+#undef INSTANTIATE_OPERATOR
 }  // namespace gpu
 }  // namespace pytorch
 }  // namespace nnutils
