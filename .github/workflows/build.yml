@@ -19,7 +19,7 @@ jobs:
     - name: Install requirements
       run: |
         pip install -r pytorch/requirements.txt
-        pip install wheel
+        pip install wheel pytest
     - name: Create and install wheel
       env:
         CC: gcc-${{ matrix.compiler-version }}
@@ -29,8 +29,5 @@ jobs:
         python setup.py bdist_wheel
         pip install $(find dist -name '*.whl')
     - name: Run tests
-      run: |
-        python -m unittest nnutils_pytorch.mask_image_from_size_test
-        python -m unittest nnutils_pytorch.adaptive_avgpool_2d_test
-        python -m unittest nnutils_pytorch.adaptive_maxpool_2d_test
+      run: pytest
   # TODO: add test-c++ job

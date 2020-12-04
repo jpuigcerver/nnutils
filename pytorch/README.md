@@ -24,17 +24,15 @@ from nnutils_pytorch import adaptive_avgpool_2d, adaptive_maxpool_2d
 # Two random images, with three channels, 10 pixels height, 12 pixels width
 x = torch.rand(2, 3, 10, 12)
 # Matrix (N x 2) containing the height and width of each image.
-xs = torch.tensor([[10, 6], [6, 12], dtype=torch.int64)
+xs = torch.tensor([[10, 6], [6, 12]], dtype=torch.long)
 
 # Pool images to a fixed size, taking into account the original size of each
 # image before padding.
-#
 # Output tensor has shape (2, 3, 3, 5)
 y1 = adaptive_avgpool_2d(batch_input=x, output_sizes=(3, 5), batch_sizes=xs)
 
 # Pool a single dimension of the images, taking into account the original
 # size of each image before padding. The None dimension is not pooled.
-#
 # Output tensor has shape (2, 3, 5, 12)
 y2 = adaptive_maxpool_2d(x, (5, None), xs)
 ```
@@ -55,7 +53,7 @@ from nnutils_pytorch import mask_image_from_size
 # Two random images, with three channels, 10 pixels height, 12 pixels width
 x = torch.rand(2, 3, 10, 12)
 # Matrix (N x 2) containing the height and width of each image.
-xs = torch.tensor([[10, 6], [6, 12], dtype=torch.int64)
+xs = torch.tensor([[10, 6], [6, 12]], dtype=torch.long)
 
 # Note: mask_image_from_size is differentiable w.r.t. x
 y = mask_image_from_size(x, xs, mask_value=0)  # mask_value is optional.
@@ -105,13 +103,10 @@ python setup.py install
 
 ## Testing
 
-You can test the library once installed using `unittest`. In particular,
-run the following commands:
+You can test the library once installed using `pytest`. Just run:
 
 ```bash
-python -m unittest nnutils_pytorch.adaptive_avgpool_2d_test
-python -m unittest nnutils_pytorch.adaptive_maxgpool_2d_test
-python -m unittest nnutils_pytorch.mask_image_from_size_test
+pytest
 ```
 
 All tests should pass (CUDA tests are only executed if supported).

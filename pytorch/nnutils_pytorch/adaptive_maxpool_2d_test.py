@@ -1,90 +1,93 @@
-from __future__ import absolute_import
-
-import unittest
-
-import numpy as np
+import pytest
 import torch
-from nnutils_pytorch import adaptive_maxpool_2d
-
 from torch.nn.functional import adaptive_max_pool2d as torch_adaptive_max_pool2d
 
+from nnutils_pytorch import adaptive_maxpool_2d
 
-class AdaptiveMaxpool2dTest(unittest.TestCase):
-    def setUp(self):
-        self._s = torch.LongTensor([[3, 4], [2, 8]])
 
-        self._x = torch.Tensor(
-            [
-                # Img 1 (3 x 4)
+def prepare(dtype, device):
+    return {
+        "s": torch.tensor([[3, 4], [2, 8]], dtype=torch.long, device=device),
+        "x": (
+            torch.tensor(
                 [
-                    [1, 2, 3, 4, 99, 99, 99, 99],
-                    [5, 6, 7, 8, 99, 99, 99, 99],
-                    [9, 10, 11, 12, 99, 99, 99, 99],
+                    # Img 1 (3 x 4)
+                    [
+                        [1, 2, 3, 4, 99, 99, 99, 99],
+                        [5, 6, 7, 8, 99, 99, 99, 99],
+                        [9, 10, 11, 12, 99, 99, 99, 99],
+                    ],
+                    # Img 2 (2 x 8)
+                    [
+                        [1, 2, 3, 4, 5, 6, 7, 8],
+                        [9, 10, 11, 12, 13, 14, 15, 16],
+                        [99, 99, 99, 99, 99, 99, 99, 99],
+                    ],
                 ],
-                # Img 2 (2 x 8)
-                [
-                    [1, 2, 3, 4, 5, 6, 7, 8],
-                    [9, 10, 11, 12, 13, 14, 15, 16],
-                    [99, 99, 99, 99, 99, 99, 99, 99],
-                ],
-            ]
-        ).resize_(2, 1, 3, 8)
-
-        self._dy = torch.Tensor(
+                dtype=dtype,
+                device=device,
+            )
+            .resize_(2, 1, 3, 8)
+            .requires_grad_()
+        ),
+        "dy": torch.tensor(
             [
                 # Output gradient w.r.t Image 1
                 [[3, 6, 9, 12]],
                 # Output gradient w.r.t. Image 2
                 [[8, 12, 16, 20]],
-            ]
-        ).resize_(2, 1, 1, 4)
-
-        self._dy_fixed_height = torch.Tensor(
+            ],
+            dtype=dtype,
+            device=device,
+        ).resize_(2, 1, 1, 4),
+        "dy_fixed_height": torch.tensor(
             [
                 # Output gradient w.r.t. Image 1
                 [[2, 4, 6, 8, 0, 0, 0, 0]],
                 # Output gradient w.r.t. Image 2
                 [[1, 3, 5, 7, 9, 11, 13, 15]],
-            ]
-        ).resize_(2, 1, 1, 8)
-
-        self._dy_fixed_width = torch.Tensor(
+            ],
+            dtype=dtype,
+            device=device,
+        ).resize_(2, 1, 1, 8),
+        "dy_fixed_width": torch.tensor(
             [
                 # Output gradient w.r.t. Image 1
                 [[2, 4], [6, 8], [10, 12]],
                 # Output gradient w.r.t. Image 2
                 [[1, 3], [5, 7], [0, 0]],
-            ]
-        ).resize_(2, 1, 3, 2)
-
-        self._expect_y = torch.Tensor(
+            ],
+            dtype=dtype,
+            device=device,
+        ).resize_(2, 1, 3, 2),
+        "expect_y": torch.tensor(
             [
                 # Expected output 1
                 [[9, 10, 11, 12]],
                 # Expected output 2
                 [[10, 12, 14, 16]],
-            ]
-        ).resize_(2, 1, 1, 4)
-
-        self._expect_y_fixed_height = torch.Tensor(
+            ],
+            dtype=dtype,
+        ).resize_(2, 1, 1, 4),
+        "expect_y_fixed_height": torch.tensor(
             [
                 # Expected output 1
                 [[9, 10, 11, 12, 0, 0, 0, 0]],
                 # Expected output 2
                 [[9, 10, 11, 12, 13, 14, 15, 16]],
-            ]
-        ).resize_(2, 1, 1, 8)
-
-        self._expect_y_fixed_width = torch.Tensor(
+            ],
+            dtype=dtype,
+        ).resize_(2, 1, 1, 8),
+        "expect_y_fixed_width": torch.tensor(
             [
                 # Expected output 1
                 [[2, 4], [6, 8], [10, 12]],
                 # Expected output 2
                 [[4, 8], [12, 16], [0, 0]],
-            ]
-        ).resize_(2, 1, 3, 2)
-
-        self._expect_dx = torch.Tensor(
+            ],
+            dtype=dtype,
+        ).resize_(2, 1, 3, 2),
+        "expect_dx": torch.tensor(
             [
                 # Input gradient w.r.t. Image 1
                 [
@@ -98,10 +101,10 @@ class AdaptiveMaxpool2dTest(unittest.TestCase):
                     [0, 8, 0, 12, 0, 16, 0, 20],
                     [0, 0, 0, 0, 0, 0, 0, 0],
                 ],
-            ]
-        ).resize_(2, 1, 3, 8)
-
-        self._expect_dx_fixed_height = torch.Tensor(
+            ],
+            dtype=dtype,
+        ).resize_(2, 1, 3, 8),
+        "expect_dx_fixed_height": torch.tensor(
             [
                 # Input gradient w.r.t. Image 1
                 [
@@ -115,10 +118,10 @@ class AdaptiveMaxpool2dTest(unittest.TestCase):
                     [1, 3, 5, 7, 9, 11, 13, 15],
                     [0, 0, 0, 0, 0, 0, 0, 0],
                 ],
-            ]
-        ).resize_(2, 1, 3, 8)
-
-        self._expect_dx_fixed_width = torch.Tensor(
+            ],
+            dtype=dtype,
+        ).resize_(2, 1, 3, 8),
+        "expect_dx_fixed_width": torch.tensor(
             [
                 # Input gradient w.r.t. Image 1
                 [
@@ -132,167 +135,70 @@ class AdaptiveMaxpool2dTest(unittest.TestCase):
                     [0, 0, 0, 5, 0, 0, 0, 7],
                     [0, 0, 0, 0, 0, 0, 0, 0],
                 ],
-            ]
-        ).resize_(2, 1, 3, 8)
-
-    def convert(self, cuda, dtype):
-        self._x = self._x.type(dtype)
-        self._dy = self._dy.type(dtype)
-        self._dy_fixed_height = self._dy_fixed_height.type(dtype)
-        self._dy_fixed_width = self._dy_fixed_width.type(dtype)
-        self._expect_y = self._expect_y.type(dtype)
-        self._expect_y_fixed_height = self._expect_y_fixed_height.type(dtype)
-        self._expect_y_fixed_width = self._expect_y_fixed_width.type(dtype)
-        self._expect_dx = self._expect_dx.type(dtype)
-        self._expect_dx_fixed_height = self._expect_dx_fixed_height.type(dtype)
-        self._expect_dx_fixed_width = self._expect_dx_fixed_width.type(dtype)
-        if cuda:
-            self._x = self._x.cuda()
-            self._s = self._s.cuda()
-            self._dy = self._dy.cuda()
-            self._dy_fixed_height = self._dy_fixed_height.cuda()
-            self._dy_fixed_width = self._dy_fixed_width.cuda()
-        else:
-            self._x = self._x.cpu()
-            self._s = self._s.cpu()
-            self._dy = self._dy.cpu()
-            self._dy_fixed_height = self._dy_fixed_height.cpu()
-            self._dy_fixed_width = self._dy_fixed_width.cpu()
-
-    def run_base(self, cuda, ttype):
-        self.convert(cuda, ttype)
-        x = self._x.detach().requires_grad_()
-        xs = self._s.detach()
-        y = adaptive_maxpool_2d(x, output_sizes=(1, 4), batch_sizes=xs)
-        y.backward(self._dy, retain_graph=True)
-        np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y)
-        np.testing.assert_array_almost_equal(x.grad.data.cpu(), self._expect_dx)
-
-    def run_fixed_height(self, cuda, ttype):
-        self.convert(cuda, ttype)
-        x = self._x.detach().requires_grad_()
-        xs = self._s.detach()
-        y = adaptive_maxpool_2d(x, output_sizes=(1, None), batch_sizes=xs)
-        y.backward(self._dy_fixed_height, retain_graph=True)
-        np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y_fixed_height)
-        np.testing.assert_array_almost_equal(
-            x.grad.data.cpu(), self._expect_dx_fixed_height
-        )
-
-    def run_fixed_width(self, cuda, ttype):
-        self.convert(cuda, ttype)
-        x = self._x.detach().requires_grad_()
-        xs = self._s.detach()
-        y = adaptive_maxpool_2d(x, output_sizes=(None, 2), batch_sizes=xs)
-        y.backward(self._dy_fixed_width, retain_graph=True)
-        np.testing.assert_array_almost_equal(y.data.cpu(), self._expect_y_fixed_width)
-        np.testing.assert_array_almost_equal(
-            x.grad.data.cpu(), self._expect_dx_fixed_width
-        )
-
-    @staticmethod
-    def run_compare_reference_smaller_output(cuda, ttype):
-        x3 = torch.randn(2, 3, 10, 15).type(ttype)
-        xs3 = torch.LongTensor([[4, 5], [8, 6]])
-        x1 = x3[0, :, :4, :5].clone().view(1, 3, 4, 5)
-        x2 = x3[1, :, :8, :6].clone().view(1, 3, 8, 6)
-        if cuda:
-            x1 = x1.cuda()
-            x2 = x2.cuda()
-            x3 = x3.cuda()
-            xs3 = xs3.cuda()
-        else:
-            x1 = x1.cpu()
-            x2 = x2.cpu()
-            x3 = x3.cpu()
-            xs3 = xs3.cpu()
-        x1 = x1.requires_grad_()
-        x2 = x2.requires_grad_()
-        x3 = x3.requires_grad_()
-        # Compare forward
-        y1 = torch_adaptive_max_pool2d(x1, output_size=(2, 3))
-        y2 = torch_adaptive_max_pool2d(x2, output_size=(2, 3))
-        y3 = adaptive_maxpool_2d(x3, output_sizes=(2, 3), batch_sizes=xs3)
-        np.testing.assert_almost_equal(
-            y3.data.cpu().numpy(), torch.cat([y1, y2]).data.cpu().numpy()
-        )
-        # Compare backward
-        dx1, dx2, = torch.autograd.grad(y1.sum() + y2.sum(), [x1, x2])
-        dx3, = torch.autograd.grad(y3.sum(), [x3])
-        ref = dx3.clone().zero_()
-        ref[0, :, :4, :5] = dx1.data
-        ref[1, :, :8, :6] = dx2.data
-        np.testing.assert_almost_equal(dx3.data.cpu().numpy(), ref.data.cpu().numpy())
-
-    @staticmethod
-    def run_compare_reference_larger_output(cuda, ttype):
-        x3 = torch.randn(2, 3, 10, 15).type(ttype)
-        xs3 = torch.LongTensor([[4, 5], [8, 6]])
-        x1 = x3[0, :, :4, :5].clone().view(1, 3, 4, 5)
-        x2 = x3[1, :, :8, :6].clone().view(1, 3, 8, 6)
-        if cuda:
-            x1 = x1.cuda()
-            x2 = x2.cuda()
-            x3 = x3.cuda()
-            xs3 = xs3.cuda()
-        else:
-            x1 = x1.cpu()
-            x2 = x2.cpu()
-            x3 = x3.cpu()
-            xs3 = xs3.cpu()
-        x1 = x1.requires_grad_()
-        x2 = x2.requires_grad_()
-        x3 = x3.requires_grad_()
-        # Compare forward
-        y1 = torch_adaptive_max_pool2d(x1, output_size=(10, 15))
-        y2 = torch_adaptive_max_pool2d(x2, output_size=(10, 15))
-        y3 = adaptive_maxpool_2d(x3, output_sizes=(10, 15), batch_sizes=xs3)
-        np.testing.assert_almost_equal(
-            y3.data.cpu().numpy(), torch.cat([y1, y2]).data.cpu().numpy()
-        )
-        # Compare backward
-        dx1, dx2, = torch.autograd.grad(y1.sum() + y2.sum(), [x1, x2])
-        dx3, = torch.autograd.grad(y3.sum(), [x3])
-        ref = dx3.clone().zero_()
-        ref[0, :, :4, :5] = dx1.data
-        ref[1, :, :8, :6] = dx2.data
-        np.testing.assert_almost_equal(dx3.data.cpu().numpy(), ref.data.cpu().numpy())
+            ],
+            dtype=dtype,
+        ).resize_(2, 1, 3, 8),
+    }
 
 
-# Register tests for different types, and different devices.
-types = [("torch.FloatTensor", "f32"), ("torch.DoubleTensor", "f64")]
-devices = [("cpu", False)]
-if torch.cuda.is_available():
-    devices += [("gpu", True)]
-
-for ttype, dtype in types:
-    for device, use_cuda in devices:
-        setattr(
-            AdaptiveMaxpool2dTest,
-            "test_%s_%s" % (device, dtype),
-            lambda self: self.run_base(use_cuda, ttype),
-        )
-        setattr(
-            AdaptiveMaxpool2dTest,
-            "test_fixed_height_%s_%s" % (device, dtype),
-            lambda self: self.run_fixed_height(use_cuda, ttype),
-        )
-        setattr(
-            AdaptiveMaxpool2dTest,
-            "test_fixed_width_%s_%s" % (device, dtype),
-            lambda self: self.run_fixed_width(use_cuda, ttype),
-        )
-        setattr(
-            AdaptiveMaxpool2dTest,
-            "test_compare_to_reference_smaller_output_%s_%s" % (device, dtype),
-            lambda self: self.run_compare_reference_smaller_output(use_cuda, ttype),
-        )
-        setattr(
-            AdaptiveMaxpool2dTest,
-            "test_compare_to_reference_larger_output_%s_%s" % (device, dtype),
-            lambda self: self.run_compare_reference_larger_output(use_cuda, ttype),
-        )
+dtypes = [
+    pytest.param(
+        torch.half,
+        marks=pytest.mark.skipif(not torch.cuda.is_available(), reason="Requires CUDA"),
+    ),
+    torch.float,
+    torch.double,
+]
+devices = [
+    pytest.param(
+        torch.device("cuda"),
+        marks=pytest.mark.skipif(not torch.cuda.is_available(), reason="Requires CUDA"),
+    ),
+    torch.device("cpu"),
+]
 
 
-if __name__ == "__main__":
-    unittest.main()
+@pytest.mark.parametrize("dtype", dtypes)
+@pytest.mark.parametrize("device", devices)
+def test_base(dtype, device):
+    t = prepare(dtype, device)
+    x, xs = t["x"], t["s"]
+    y = adaptive_maxpool_2d(x, output_sizes=(1, 4), batch_sizes=xs)
+    y.backward(t["dy"], retain_graph=True)
+    torch.testing.assert_allclose(y, t["expect_y"])
+    torch.testing.assert_allclose(x.grad, t["expect_dx"])
+
+
+@pytest.mark.parametrize("dtype", dtypes)
+@pytest.mark.parametrize("device", devices)
+@pytest.mark.parametrize("dim", ["height", "width"])
+def test_fixed(dtype, device, dim):
+    t = prepare(dtype, device)
+    x, xs = t["x"], t["s"]
+    output_sizes = (1, None) if dim == "height" else (None, 2)
+    y = adaptive_maxpool_2d(x, output_sizes=output_sizes, batch_sizes=xs)
+    y.backward(t[f"dy_fixed_{dim}"], retain_graph=True)
+    torch.testing.assert_allclose(y, t[f"expect_y_fixed_{dim}"])
+    torch.testing.assert_allclose(x.grad, t[f"expect_dx_fixed_{dim}"])
+
+
+@pytest.mark.parametrize("dtype", dtypes)
+@pytest.mark.parametrize("device", devices)
+@pytest.mark.parametrize("size", [(2, 3), (20, 25)])
+def test_compare_reference(dtype, device, size):
+    x3 = torch.randn(2, 3, 10, 15, dtype=dtype, device=device, requires_grad=True)
+    xs3 = torch.tensor([[4, 5], [8, 6]], dtype=torch.long, device=device)
+    x1 = x3[0, :, :4, :5].clone().view(1, 3, 4, 5)
+    x2 = x3[1, :, :8, :6].clone().view(1, 3, 8, 6)
+    # Compare forward
+    y1 = torch_adaptive_max_pool2d(x1, output_size=size)
+    y2 = torch_adaptive_max_pool2d(x2, output_size=size)
+    y3 = adaptive_maxpool_2d(x3, output_sizes=size, batch_sizes=xs3)
+    torch.testing.assert_allclose(y3, torch.cat([y1, y2]))
+    # Compare backward
+    dx1, dx2 = torch.autograd.grad(y1.sum() + y2.sum(), [x1, x2])
+    (dx3,) = torch.autograd.grad(y3.sum(), [x3])
+    ref = torch.zeros_like(dx3)
+    ref[0, :, :4, :5] = dx1
+    ref[1, :, :8, :6] = dx2
+    torch.testing.assert_allclose(dx3, ref)
