@@ -106,6 +106,7 @@ python setup.py install
 You can test the library once installed using `pytest`. Just run:
 
 ```bash
+# pip install pytest
 pytest
 ```
 
